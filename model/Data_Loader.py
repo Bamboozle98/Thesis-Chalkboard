@@ -4,14 +4,16 @@ from PIL import Image
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 import torchvision.transforms as transforms
+from SLIC import create_superpixel_image
 
 
 # Define the custom Dataset class at the module level
 class OxfordPetsDataset(Dataset):
-    def __init__(self, image_paths, labels, transform=None):
+    def __init__(self, image_paths, labels, transform=None, n_segments=100):
         self.image_paths = image_paths
         self.labels = labels
         self.transform = transform
+        self.n_segments = n_segments
 
     def __len__(self):
         return len(self.image_paths)
@@ -21,14 +23,17 @@ class OxfordPetsDataset(Dataset):
         img_path = self.image_paths[idx]
         image = Image.open(img_path).convert("RGB")
 
+        # This is where the images are processed via superpixels.
+        superpixel_image = create_superpixel_image(image, n_segments=self.n_segments)
+
         # Apply transformations if any
         if self.transform:
-            image = self.transform(image)
+            superpixel_image = self.transform(superpixel_image)
 
         # Get the label
         label = self.labels[idx]
 
-        return image, label
+        return superpixel_image, label
 
 def data_process():
     # Define the path to the dataset
