@@ -8,6 +8,7 @@ from torch.utils.tensorboard import SummaryWriter
 def training(model, train_loader, epochs, learning):
     # Move the model to GPU if available
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    print(device)
     model = model.to(device)
 
     # Define loss function and optimizer

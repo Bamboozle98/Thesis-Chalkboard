@@ -37,7 +37,7 @@ class OxfordPetsDataset(Dataset):
 
 def data_process():
     # Define the path to the dataset
-    dataset_dir = 'C:/Users/cbran/PycharmProjects/Thesis-Chalkboard/Data/images'
+    dataset_dir = 'C:/Users/mccutcheonc18/PycharmProjects/Thesis-Chalkboard/OxfordPets/images'
 
     # List all image files
     image_files = [f for f in os.listdir(dataset_dir) if f.endswith('.jpg')]
