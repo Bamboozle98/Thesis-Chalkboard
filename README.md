@@ -39,10 +39,10 @@ Most of our version 1 model will be built using SLIC on the Oxford Pets Dataset 
 is completed, we will branch out into other iterations and tests. 
 ![IMG_1135.jpg](ReadMe_Images%2FIMG_1135.jpg)
 ## Major Goals:
--[ ] Create a functioning SP Transformer Model
+- [ ] Create a functioning SP Transformer Model
   - [x] Get a functioning transformer that classifies the Oxford Pets Dataset.
-  -[x] Run the transformer with SLIC in preprocessing.
-  -[ ] Create a mini CNN used to convolve and pool the superpixels into standardize feature vectors.
+  - [x] Run the transformer with SLIC in preprocessing.
+  - [ ] Create a mini CNN used to convolve and pool the superpixels into standardize feature vectors.
   - [ ] Pass vectorized superpixels to Transformer for classification.
   - [ ] Ensure and optimize competitive results for our SP Transformer.
 - [ ] Justify the model's Existence
