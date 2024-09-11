@@ -6,7 +6,7 @@ from PIL import Image
 def create_superpixel_image(image, n_segments):
     """
     Applies SLIC to an image and returns a new image where each superpixel has a unique color. This is for testing
-    purposes to ensure that the transformer is using the super pixels as tokens. Ideally, we will convolve each super
+    the computational time difference of using SLIC in preprocessing vs training time. Ideally, we will convolve each super
     pixel into a vector of standardized dimensions.
 
     Parameters:
@@ -21,7 +21,8 @@ def create_superpixel_image(image, n_segments):
     # Apply SLIC
     segments = slic(image_np, n_segments=n_segments, compactness=10, start_label=1)
 
-    # Convert segments to image where each superpixel is a unique color
+    ### Convert segments to image where each superpixel is a unique color. This makes it easy at a glance to see the
+    ### superpixels. Will replace with boundary outlines soon enough.
     unique_segments = np.unique(segments)
     superpixel_image = np.zeros_like(image_np)
 

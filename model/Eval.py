@@ -2,7 +2,6 @@ import torch
 
 
 def evaluation(model, val_loader, class_names):
-    # Evaluation
 
     # Move the model to GPU if available
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')

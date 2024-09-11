@@ -26,7 +26,7 @@ class OxfordPetsDataset(Dataset):
         # This is where the images are processed via superpixels.
         superpixel_image = create_superpixel_image(image, n_segments=self.n_segments)
 
-        # Apply transformations if any
+        # Apply transformations
         if self.transform:
             superpixel_image = self.transform(superpixel_image)
 
@@ -42,7 +42,7 @@ def data_process():
     # List all image files
     image_files = [f for f in os.listdir(dataset_dir) if f.endswith('.jpg')]
 
-    # Extract class labels from filenames (assuming label is before the last underscore)
+    # Extract class labels from filenames
     def extract_label(file_name):
         label = file_name.split('_')[:-1]  # All parts before the last underscore form the class name
         return '_'.join(label)
@@ -72,12 +72,12 @@ def data_process():
         image_paths, encoded_labels, test_size=0.2, random_state=42
     )
 
-    # Define image transformations (resize and normalize to match pre-trained ViT requirements)
+    # Define image transformations
     IMG_SIZE = (224, 224)
     transform = transforms.Compose([
         transforms.Resize(IMG_SIZE),
         transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])  # Use ImageNet normalization
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])  # This is ImageNet normalization, certainly not necessary
     ])
 
     # Create train and validation datasets
