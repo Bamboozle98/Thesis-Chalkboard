@@ -16,15 +16,15 @@ a transformer.
 We are currently considering SLIC and Segment Anything for generating superpixels in our model. SLIC is a 
 straightforward method that takes an image and the desired number of SPs(Superpixels) and generates a corresponding 
 image with SP boundaries labeled. Segment Anything takes it a step further by grouping the SPs based on similarities to 
-truly segment the image. This has the advantage of allowing us to train on model on more complicated tasks derived from 
+truly segment the image. This has the advantage of allowing us to train our model on more complicated tasks derived from 
 segmentation, but makes it redundant to test a model on solely segmentation (cause the image is already segmented).
 ### Converting Superpixels into a valid input for a transformer
 Unfortunately, not all superpixels are made equal. This is problematic because Transformers require uniform tokenized 
 inputs to map attention between all input tokens in an image. So how do we standardize our superpixels for input? There
 are several potential ways, but the one we are focused on involves convolving each superpixel in each image and taking the
 feature vector from our convolution network and using said vector as the input for our transformer. A rough idea of this
-concept is demonstrated below. However, an glaring issue with this process is the performance cost. A paramount advantage 
-of transformer vs other network types is there computational efficiency a large scales. If we stop to both generate 
+concept is demonstrated below. However, a glaring issue with this process is the performance cost. A paramount advantage 
+of transformers vs other network types is their computational efficiency at large scales. If we stop to both generate 
 superpixels and convolve all of those superpixels for every image during training, then the time efficiency of our model 
 might suffer severely. 
 ![IMG_1133.jpg](ReadMe_Images%2FIMG_1133.jpg)
