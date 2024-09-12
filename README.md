@@ -3,6 +3,18 @@ Planning and Development of Super-Pixel Transformer. Will be cleaned up, or offl
 completion. This repo will be the groundwork for multiple iterations and tests of different models. We will build our 
 models with SLIC and Segment Anything, and we will test pre-trained, and trained-from-scratch transformers. 
 
+## Major Goals:
+- [ ] Create a functioning SP Transformer Model
+  - [x] Get a functioning transformer that classifies the Oxford Pets Dataset.
+  - [x] Run the transformer with SLIC in preprocessing.
+  - [ ] Create a mini CNN used to convolve and pool the superpixels into standardize feature vectors.
+  - [ ] Pass vectorized superpixels to Transformer for classification.
+  - [ ] Ensure and optimize competitive results for our SP Transformer.
+- [ ] Justify the model's Existence
+  - [ ] Create a Plan based on related works for tasks and datasets to compare on.
+  - [ ] Test model on different tasks, collect results with an emphasis on accuracy and efficiency.
+    - - [ ] Test the model with Segment Anything.
+
 ## The Plan
 Build a model that preprocesses an image with SLIC, extracts a superpixel index map, convolve each super pixel to create 
 feature vectors, and then pass those vectors as tokens into a transformer for classification. 
@@ -38,14 +50,3 @@ at the tasks and datasets our 'competitors' are using and testing our model iter
 Most of our version 1 model will be built using SLIC on the Oxford Pets Dataset for classification, once this iteration 
 is completed, we will branch out into other iterations and tests. 
 ![IMG_1135.jpg](ReadMe_Images%2FIMG_1135.jpg)
-## Major Goals:
-- [ ] Create a functioning SP Transformer Model
-  - [x] Get a functioning transformer that classifies the Oxford Pets Dataset.
-  - [x] Run the transformer with SLIC in preprocessing.
-  - [ ] Create a mini CNN used to convolve and pool the superpixels into standardize feature vectors.
-  - [ ] Pass vectorized superpixels to Transformer for classification.
-  - [ ] Ensure and optimize competitive results for our SP Transformer.
-- [ ] Justify the model's Existence
-  - [ ] Create a Plan based on related works for tasks and datasets to compare on.
-  - [ ] Test model on different tasks, collect results with an emphasis on accuracy and efficiency.
-    - - [ ] Test the model with Segment Anything.
