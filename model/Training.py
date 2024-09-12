@@ -8,17 +8,18 @@ from torch.utils.tensorboard import SummaryWriter
 def training(model, train_loader, epochs, learning):
     # Move the model to GPU if available
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    print(device)
     model = model.to(device)
 
     # Define loss function and optimizer
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=learning)
 
-    # Initialize TensorBoard writer
+    # Initialize TensorBoard writer for useful UI stuff during training. (Progress bar, time in seconds, etc...)
     writer = SummaryWriter()
 
     # Training loop
-    num_epochs = epochs  # Adjust the number of epochs as needed
+    num_epochs = epochs  # Epochs are adjusted in the main.py
     start_time = time.time()
 
     for epoch in range(num_epochs):
@@ -43,7 +44,7 @@ def training(model, train_loader, epochs, learning):
                 loss.backward()
                 optimizer.step()
 
-                # Calculate statistics
+                # Calculate statistical results
                 _, predicted = torch.max(outputs, 1)
                 correct_predictions += (predicted == labels).sum().item()
                 total_samples += labels.size(0)
