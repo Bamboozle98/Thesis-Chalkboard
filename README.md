@@ -9,7 +9,7 @@ feature vectors, and then pass those vectors as tokens into a transformer for cl
 
 ## The Holy Whiteboard
 The following whiteboard acts as the high-level blueprint for our research project. The goal is to take images that have 
-been broken up into an arbitrary number of superpixels and converting those superpixels into standardized vectors for 
+been broken up into an arbitrary number of superpixels and convert those superpixels into standardized vectors for 
 a transformer. 
 ![IMG_1128.jpg](ReadMe_Images%2FIMG_1128.jpg)
 ### Superpixel Algorithms
