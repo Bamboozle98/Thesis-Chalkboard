@@ -1,0 +1,17 @@
+C:\Users\cbran\.conda\envs\SPTransformer\python.exe C:\Users\cbran\PycharmProjects\Thesis-Chalkboard\model\main.py 
+Class names: ['Abyssinian' 'Bengal' 'Birman' 'Bombay' 'British_Shorthair'
+ 'Egyptian_Mau' 'Maine_Coon' 'Persian' 'Ragdoll' 'Russian_Blue' 'Siamese'
+ 'Sphynx' 'american_bulldog' 'american_pit_bull_terrier' 'basset_hound'
+ 'beagle' 'boxer' 'chihuahua' 'english_cocker_spaniel' 'english_setter'
+ 'german_shorthaired' 'great_pyrenees' 'havanese' 'japanese_chin'
+ 'keeshond' 'leonberger' 'miniature_pinscher' 'newfoundland' 'pomeranian'
+ 'pug' 'saint_bernard' 'samoyed' 'scottish_terrier' 'shiba_inu'
+ 'staffordshire_bull_terrier' 'wheaten_terrier' 'yorkshire_terrier']
+cuda
+Epoch 1/5:   0%|          | 0/185 [00:00<?, ?batch/s]C:\Users\cbran\.conda\envs\SPTransformer\Lib\site-packages\torch\nn\functional.py:5560: UserWarning: 1Torch was not compiled with flash attention. (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\builder\windows\pytorch\aten\src\ATen\native\transformers\cuda\sdp_utils.cpp:555.)
+  attn_output = scaled_dot_product_attention(q, k, v, attn_mask, dropout_p, is_causal)
+Epoch 1/5: 100%|██████████| 185/185 [18:47<00:00,  3.62s/batch, accuracy=2.5, loss=3.6][W916 19:28:57.000000000 CudaIPCTypes.cpp:16] Producer process has been terminated before all shared CUDA tensors released. See Note [Sharing CUDA tensors]
+
+Epoch 1/5, Loss: 3.6231, Accuracy: 2.50%, Duration: 1128.45 seconds
+Epoch 1/5: 100%|██████████| 185/185 [18:48<00:00,  6.10s/batch, accuracy=2.5, loss=3.6]
+Epoch 2/5:  72%|███████▏  | 134/185 [15:21<08:12,  9.66s/batch, accuracy=2.54, loss=3.59]
