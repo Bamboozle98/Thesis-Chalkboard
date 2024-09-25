@@ -1,27 +1,26 @@
 import numpy as np
 from skimage.segmentation import slic
+from skimage.color import label2rgb
 from PIL import Image
 
 
 def create_superpixel_image(image, n_segments):
     """
-    Applies SLIC to an image and returns a new image. This is for testing the computational time difference of using
-    SLIC in preprocessing vs training time. Ideally, we will convolve each super pixel into a vector of standardized
-    dimensions.
+    Applies SLIC to an image and returns both the superpixel map and a visualization of the superpixel image.
 
     Parameters:
     - image (PIL.Image): Input image.
     - n_segments (int): Number of superpixels to generate.
 
     Returns:
-    - PIL.Image: Image with superpixels.
+    - segments (np.ndarray): Superpixel map where each pixel is assigned a superpixel label.
+    - PIL.Image: Image with superpixels for visualization (optional, can be removed if not needed).
     """
+    # Convert image to numpy array
     image_np = np.array(image)
 
-    # Apply SLIC
-    segments = slic(image_np, n_segments=n_segments, compactness=10, start_label=1)
+    # Apply SLIC algorithm to generate superpixels
+    segments = slic(image_np, n_segments=n_segments, compactness=10, start_label=0)  # Start labels at 0
 
-    unique_segments = np.unique(segments)
-    superpixel_image = np.zeros_like(image_np)
+    return segments,
 
-    return Image.fromarray(superpixel_image.astype('uint8'))

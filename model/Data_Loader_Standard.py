@@ -5,15 +5,18 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 import torchvision.transforms as transforms
 from SLIC import create_superpixel_image
+import torch
+from MiniCNN import SuperpixelCNN
 
 
 # Define the custom Dataset class at the module level
 class OxfordPetsDataset(Dataset):
-    def __init__(self, image_paths, labels, transform=None, n_segments=100):
+    def __init__(self, image_paths, labels, transform=None, n_segments=100, cnn=SuperpixelCNN()):
         self.image_paths = image_paths
         self.labels = labels
         self.transform = transform
         self.n_segments = n_segments
+        self.cnn = cnn
 
     def __len__(self):
         return len(self.image_paths)
@@ -23,21 +26,20 @@ class OxfordPetsDataset(Dataset):
         img_path = self.image_paths[idx]
         image = Image.open(img_path).convert("RGB")
 
-        # This is where the images are processed via superpixels.
-        superpixel_image = create_superpixel_image(image, n_segments=self.n_segments)
 
         # Apply transformations
         if self.transform:
-            superpixel_image = self.transform(superpixel_image)
+            image = self.transform(image)
 
         # Get the label
         label = self.labels[idx]
 
-        return superpixel_image, label
+        return image, label
+
 
 def data_process():
     # Define the path to the dataset
-    dataset_dir = 'C:/Users/mccutcheonc18/PycharmProjects/Thesis-Chalkboard/OxfordPets/images'
+    dataset_dir = 'C:/Users/cbran/PycharmProjects/Thesis-Chalkboard/Data/images'
 
     # List all image files
     image_files = [f for f in os.listdir(dataset_dir) if f.endswith('.jpg')]
