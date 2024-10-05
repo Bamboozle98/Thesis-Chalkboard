@@ -2,72 +2,44 @@ import torch
 import torch.nn as nn
 
 
-class CustomTransformerModel(nn.Module):
-    def __init__(self, num_classes, num_superpixel_features, num_layers=6, nhead=8):
-        """
-        Custom Transformer model for superpixel feature classification.
+class TransformerEncoder(nn.Module):
+    def __init__(self, in_channels, out_channels, electrode_locs, d_model=512, nhead=8, num_encoder_layers=3,
+                 dropout=0.1):
+        super(TransformerEncoder, self).__init__()
+        # Ensure d_model is divisible by nhead
+        if d_model % nhead != 0:
+            raise ValueError(f"d_model ({d_model}) must be divisible by nhead ({nhead})")
 
-        Parameters:
-        - num_classes (int): Number of classes in the dataset.
-        - num_superpixel_features (int): Number of features per superpixel.
-        - num_layers (int): Number of transformer encoder layers.
-        - nhead (int): Number of attention heads.
-        """
-        super(CustomTransformerModel, self).__init__()
+        # Transformer Encoder
+        encoder_layer = nn.TransformerEncoderLayer(d_model=d_model, nhead=nhead, dropout=dropout, batch_first=True)
+        self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_encoder_layers)
 
-        # Define a transformer encoder
-        self.transformer = nn.Transformer(
-            d_model=num_superpixel_features,
-            nhead=nhead,
-            num_encoder_layers=num_layers
-        )
+        # Project in_channels to d_model
+        self.input_projection = nn.Linear(4, d_model)  # Adding positions to encodings
 
-        # Define a classification head (simple fully connected layer)
-        self.fc = nn.Linear(num_superpixel_features, num_classes)
+        self.register_buffer("electrode_locs", torch.tensor(electrode_locs, dtype=torch.float32))
 
-        # Optional: Positional encoding (useful for transformers dealing with sequences)
-        self.positional_encoding = nn.Parameter(torch.zeros(1000, num_superpixel_features))
+        # Learnable Embedding Vector
+        self.learned_token = nn.Parameter(torch.rand(1, d_model))
 
-    def forward(self, src):
-        """
-        Forward pass for the transformer model.
+        # Projection to output
+        self.output_projection = nn.Linear(d_model, out_channels)
 
-        Parameters:
-        - src (Tensor): Input tensor of shape (sequence_length, batch_size, num_superpixel_features)
+    def forward(self, x):
+        x = torch.cat((x.unsqueeze(2), self.electrode_locs.expand(x.shape[0], -1, -1)), dim=2)
 
-        Returns:
-        - Output class predictions
-        """
-        # Add positional encoding (optional)
-        src = src + self.positional_encoding[:src.size(0), :]
+        x = self.input_projection(x)  # Project input to embedding dimension
 
-        # Pass the input through the transformer encoder
-        transformer_output = self.transformer(src)
+        # Append learned token to input
+        learned_token = self.learned_token.expand(x.size(0), -1, -1)
+        x = torch.cat((learned_token, x), dim=1)
 
-        # Take the mean of the transformer output across sequence length (global average pooling)
-        pooled_output = transformer_output.mean(dim=0)
+        x = self.transformer_encoder(x)
+        # x = self.dropout(x)  # Apply dropout
+        # x = x.mean(dim=1)  # Global average pooling
 
-        # Pass the pooled output through the classification head
-        output = self.fc(pooled_output)
+        x = self.output_projection(x[:, 0, :])  # Project to output dimension
 
-        return output
-
-
-# Example usage
-def transformer_model(class_names, num_superpixel_features):
-    """
-    Load a custom Transformer model for classifying superpixel feature vectors.
-
-    Parameters:
-    - class_names (list): List of class names in your dataset.
-    - num_superpixel_features (int): The number of features per superpixel.
-
-    Returns:
-    - model: The custom Transformer model.
-    """
-    num_classes = len(class_names)  # Number of classes in your dataset
-    model = CustomTransformerModel(num_classes=num_classes, num_superpixel_features=num_superpixel_features)
-
-    return model
+        return x
 
 

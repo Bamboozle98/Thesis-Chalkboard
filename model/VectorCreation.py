@@ -1,11 +1,16 @@
 import torch
 from tqdm import tqdm  # Import tqdm for progress bar
 
+
 def generate_feature_vectors(cnn_model, data_loader):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    print(f"Processing on {device}")
 
+    # Move model to device
     cnn_model = cnn_model.to(device)
+
+    # Now print the device of model parameters
+    print(next(cnn_model.parameters()).device)  # This will print the device of the model parameters
+
     cnn_model.eval()
 
     feature_vectors = []
@@ -18,3 +23,4 @@ def generate_feature_vectors(cnn_model, data_loader):
             feature_vectors.append(features)  # Append features to the list
 
     return feature_vectors
+
