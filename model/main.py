@@ -1,10 +1,11 @@
-from ViT import TransformerEncoder
+from Transformer import TransformerEncoder
 from Data_Loader_SP import data_process_SP
 from Training import training
+from Vector_Data_Loader import SuperpixelDataset
 from Eval import evaluation
 from MiniCNN import SuperpixelCNN
 from VectorCreation import generate_feature_vectors
-from model.VectorAssignment import assign_features_to_superpixels
+from model.VectorCreation import assign_features_to_superpixels
 import torch
 
 # Hyperparameters
@@ -25,23 +26,26 @@ def main():
     # Generate feature vectors from CNN
     cnn_output = generate_feature_vectors(cnn_model, train_loader)
 
-    # Extract superpixel maps from the data loader
-    superpixel_maps = [batch[0] for batch in train_loader]  # Assuming superpixel_map is the first element in each batch
+    # Assume superpixel maps are also being loaded in the train_loader
+    mapped_vectors = []
 
-    # Assign features to superpixels
-    mapped_vectors = assign_features_to_superpixels(cnn_output, superpixel_maps)
+    for (superpixel_maps, images, _) in train_loader:
+        # Assign features to superpixels
+        mapped_vectors_batch = assign_features_to_superpixels(cnn_output, superpixel_maps)
+        mapped_vectors.append(mapped_vectors_batch)
 
-    # Prepare the transformer input (mapped_vectors)
-    transformer_input = [torch.stack(batch) for batch in mapped_vectors]  # Stack vectors for each image in the batch
+    dataset = SuperpixelDataset(mapped_vectors)
+    dataloader = torch.utils.data.DataLoader(dataset, batch_size=32, shuffle=True)
+    train_loader = dataloader(dataset, batch_size=32, shuffle=True, num_workers=4)
 
-    # Initialize the transformer model
-    vit_model = TransformerEncoder(class_names, num_superpixel_features)
+    # Concatenate all mapped vectors into a single tensor
+    print(mapped_vectors)
+    mapped_vectors = torch.cat(mapped_vectors, dim=0)
 
-    # Train the Vision Transformer with features assigned from the CNN
-    vit_model = training(vit_model, transformer_input, train_loader, num_epochs, lr)  # Adjust training function as necessary
 
-    # Evaluate the model
-    evaluation(vit_model, val_loader, class_names)
+    # Start training with mapped superpixel vectors
+    trained_model = training(model, mapped_vectors, num_epochs, lr)
+
 
 if __name__ == '__main__':
     main()

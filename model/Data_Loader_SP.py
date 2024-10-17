@@ -30,7 +30,8 @@ class OxfordPetsDataset(Dataset):
 
         # Create the superpixel map using SLIC
         superpixel_map = create_superpixel_image(transformed_image, n_segments=self.n_segments)
-
+        # print("Superpixel map")
+        # print(superpixel_map)
         # Get the label
         label = self.labels[idx]
 
@@ -39,7 +40,7 @@ class OxfordPetsDataset(Dataset):
 
 # Function to create DataLoaders
 def data_process_SP():
-    dataset_dir = 'C:/Users/cbran/PycharmProjects/Thesis-Chalkboard/Data/images'
+    dataset_dir = 'C:/Users/cbran/PycharmProjects/Thesis-Chalkboard/Data/test'
     image_files = [f for f in os.listdir(dataset_dir) if f.endswith('.jpg')]
 
     def extract_label(file_name):
