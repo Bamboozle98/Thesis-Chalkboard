@@ -15,6 +15,18 @@ train_loader = DataLoader(train_dataset,batch_size=1)
 val_loader = DataLoader(validation_dataset,batch_size=1)
 
 
+def positionals_encoding(superpixel_map):
+
+    rows, cols = superpixel_map.shape
+
+    r_vals, c_vals = torch.meshgrid(rows, cols)
+
+    center_rs = torch.scatter(r_vals,1,superpixel_map,reduce='mean')
+    center_cs = torch.scatter(c_vals,1,superpixel_map,reduce='mean')
+
+    #standard positionals_encoding stuff...
+
+
 class LitNetwork(pl.LightningModule):
     def __init__(self):
         super(LitNetwork, self).__init__()
@@ -35,6 +47,8 @@ class LitNetwork(pl.LightningModule):
         out_image = self.cnn(x)
 
         superpix_vectors = torch.scatter(out_image,[2,3],superpixel_map,reduce='mean')
+
+        #superpix_vector = superpix_vectors + positionals_encoding(superpixel_map)
 
         predictions = self.transformer(superpix_vectors)
 
