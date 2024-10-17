@@ -3,7 +3,7 @@ import torch.nn as nn
 
 
 class TransformerEncoder(nn.Module):
-    def __init__(self, in_channels, out_channels, electrode_locs, d_model=512, nhead=8, num_encoder_layers=3,
+    def __init__(self, in_channels, out_channels, d_model=512, nhead=8, num_encoder_layers=3,
                  dropout=0.1):
         super(TransformerEncoder, self).__init__()
         # Ensure d_model is divisible by nhead
@@ -15,9 +15,7 @@ class TransformerEncoder(nn.Module):
         self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_encoder_layers)
 
         # Project in_channels to d_model
-        self.input_projection = nn.Linear(4, d_model)  # Adding positions to encodings
-
-        self.register_buffer("electrode_locs", torch.tensor(electrode_locs, dtype=torch.float32))
+        self.input_projection = nn.Linear(in_channels, d_model)  # Adding positions to encodings
 
         # Learnable Embedding Vector
         self.learned_token = nn.Parameter(torch.rand(1, d_model))
@@ -26,8 +24,6 @@ class TransformerEncoder(nn.Module):
         self.output_projection = nn.Linear(d_model, out_channels)
 
     def forward(self, x):
-        x = torch.cat((x.unsqueeze(2), self.electrode_locs.expand(x.shape[0], -1, -1)), dim=2)
-
         x = self.input_projection(x)  # Project input to embedding dimension
 
         # Append learned token to input
