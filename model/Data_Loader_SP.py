@@ -39,8 +39,8 @@ class OxfordPetsDataset(Dataset):
 
 
 # Function to create DataLoaders
-def data_process_SP():
-    dataset_dir = 'C:/Users/cbran/PycharmProjects/Thesis-Chalkboard/Data/test'
+def data_process_SP(dataset_dir = 'C:/Users/cbran/PycharmProjects/Thesis-Chalkboard/Data/test'):
+
     image_files = [f for f in os.listdir(dataset_dir) if f.endswith('.jpg')]
 
     def extract_label(file_name):
