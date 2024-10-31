@@ -36,17 +36,17 @@ class LitNetwork(pl.LightningModule):
         out_image = self.cnn(x)
         #print("Shape of superpixel_map:", superpixel_map.shape)
         #print("Shape of out_image:", out_image.shape)
-        superpixel_map = superpixel_map.unsqueeze(1)
+        superpixel_map = superpixel_map.unsqueeze(1).expand_as(out_image)
 
         b,d,r,c = out_image.shape
 
         #print(out_image.view(b,d,r*c).shape)
         #print(superpixel_map.view(b,1,r*c).shape)
 
-        num_pix = torch.max(superpixel_map) + 1
+        num_pix = 50 #torch.max(superpixel_map) + 1
         buffer = torch.zeros((b,d,num_pix)).to(out_image.device)
 
-        superpix_vectors = torch.scatter_reduce(buffer, 2, superpixel_map.view(b,1,r*c), out_image.view(b,d,r*c), reduce='mean')
+        superpix_vectors = torch.scatter_reduce(buffer, 2, superpixel_map.view(b,d,r*c), out_image.view(b,d,r*c), reduce='mean')
         superpix_vectors = superpix_vectors.permute(0, 2, 1)
         #print(superpix_vectors.shape)
         predictions = self.transformer(superpix_vectors)
