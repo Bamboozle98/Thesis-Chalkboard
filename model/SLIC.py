@@ -7,10 +7,14 @@ from PIL import Image
 def create_superpixel_image(image, n_segments):
 
     # Convert image to numpy array
-    image_np = np.array(image)
+    # print("pre numpy")
+    # print(image.size())
+    image = np.array(image)
+    # print("post numpy")
+    # print(image.shape)
 
     # Apply SLIC algorithm to generate superpixels
-    segments = slic(image_np, n_segments=n_segments, compactness=10, start_label=0)  # Start labels at 0
+    segments = slic(image, n_segments=n_segments, compactness=10, start_label=0)  # Start labels at 0
 
     return segments
 

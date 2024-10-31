@@ -7,6 +7,10 @@ import torchvision.transforms as transforms
 from SLIC import create_superpixel_image
 
 
+def permute_image(x):
+    return x.permute(1, 2, 0)
+
+
 class OxfordPetsDataset(Dataset):
     def __init__(self, image_paths, labels, transform=None, n_segments=50):
         self.image_paths = image_paths
@@ -72,9 +76,9 @@ def data_process_SP(dataset_dir = 'C:/Users/cbran/PycharmProjects/Thesis-Chalkbo
     transform = transforms.Compose([
         transforms.Resize(IMG_SIZE),
         transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        transforms.Lambda(permute_image)
     ])
-
     train_dataset = OxfordPetsDataset(train_images, train_labels, transform=transform)
     val_dataset = OxfordPetsDataset(val_images, val_labels, transform=transform)
 
