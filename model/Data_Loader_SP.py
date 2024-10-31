@@ -39,6 +39,9 @@ class OxfordPetsDataset(Dataset):
         # Get the label
         label = self.labels[idx]
 
+        #print(superpixel_map.shape)
+        #print(transformed_image.shape)
+
         return superpixel_map, transformed_image, label
 
 
@@ -77,7 +80,7 @@ def data_process_SP(dataset_dir = 'C:/Users/cbran/PycharmProjects/Thesis-Chalkbo
         transforms.Resize(IMG_SIZE),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-        transforms.Lambda(permute_image)
+        #transforms.Lambda(permute_image)
     ])
     train_dataset = OxfordPetsDataset(train_images, train_labels, transform=transform)
     val_dataset = OxfordPetsDataset(val_images, val_labels, transform=transform)

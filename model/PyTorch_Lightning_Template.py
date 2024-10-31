@@ -10,8 +10,8 @@ from MiniCNN import SuperpixelCNN
 from Transformer import TransformerEncoder
 
 # Load datasets
-train_dataset, validation_dataset, class_names = data_process_SP()
-train_loader, val_loader, class_names = data_process_SP()
+#train_dataset, validation_dataset, class_names = data_process_SP()
+train_loader, val_loader, class_names = data_process_SP("../data/images/")
 
 
 def positionals_encoding(superpixel_map):
@@ -27,15 +27,28 @@ class LitNetwork(pl.LightningModule):
         super(LitNetwork, self).__init__()
         n_classes = 37  # Adjust number of classes as necessary
         out_channels = 512
-        self.cnn = SuperpixelCNN(in_channels=224, out_channels=out_channels)
+        self.cnn = SuperpixelCNN(in_channels=3, out_channels=out_channels)
         self.transformer = TransformerEncoder(out_channels, n_classes)
         self.loss_func = torch.nn.CrossEntropyLoss()
         self.val_acc = torchmetrics.Accuracy("multiclass", num_classes=n_classes, average='micro')
 
     def forward(self, x, superpixel_map):
         out_image = self.cnn(x)
-        print("Shape of superpixel_map:", superpixel_map.shape)
-        superpix_vectors = torch.scatter_reduce(out_image, 2, superpixel_map, out_image, reduce='mean')
+        #print("Shape of superpixel_map:", superpixel_map.shape)
+        #print("Shape of out_image:", out_image.shape)
+        superpixel_map = superpixel_map.unsqueeze(1)
+
+        b,d,r,c = out_image.shape
+
+        #print(out_image.view(b,d,r*c).shape)
+        #print(superpixel_map.view(b,1,r*c).shape)
+
+        num_pix = torch.max(superpixel_map) + 1
+        buffer = torch.zeros((b,d,num_pix)).to(out_image.device)
+
+        superpix_vectors = torch.scatter_reduce(buffer, 2, superpixel_map.view(b,1,r*c), out_image.view(b,d,r*c), reduce='mean')
+        superpix_vectors = superpix_vectors.permute(0, 2, 1)
+        #print(superpix_vectors.shape)
         predictions = self.transformer(superpix_vectors)
         return predictions
 

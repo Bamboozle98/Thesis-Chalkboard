@@ -1,0 +1,7 @@
+
+*.png
+*.xml
+*.jpg
+/model/my_logs
+/model/__pycache__
+*.mat
