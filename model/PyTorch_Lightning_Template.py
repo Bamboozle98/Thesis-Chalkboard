@@ -1,9 +1,8 @@
 import torch
-import torch.nn as nn
 import torchmetrics
 import pytorch_lightning as pl
 from pytorch_lightning import loggers as pl_loggers
-from torch.utils.data import Dataset, DataLoader
+from model.config import num_epochs, learning_rate
 
 from Data_Loader_SP import data_process_SP
 from MiniCNN import SuperpixelCNN
@@ -11,7 +10,7 @@ from Transformer import TransformerEncoder
 
 # Load datasets
 #train_dataset, validation_dataset, class_names = data_process_SP()
-train_loader, val_loader, class_names = data_process_SP("../data/images/")
+train_loader, val_loader, class_names = data_process_SP()
 
 
 def positionals_encoding(superpixel_map):
@@ -53,7 +52,7 @@ class LitNetwork(pl.LightningModule):
         return predictions
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.parameters(), lr=1e-4)
+        optimizer = torch.optim.Adam(self.parameters(), lr=learning_rate)
         return optimizer
 
     def training_step(self, data, batch_idx):
@@ -77,5 +76,5 @@ if __name__ == "__main__":
 
     device = "gpu"  # Adjust to your system's capabilities
 
-    trainer = pl.Trainer(max_epochs=10, accelerator=device, callbacks=[checkpoint], logger=logger)
+    trainer = pl.Trainer(max_epochs=num_epochs, accelerator=device, callbacks=[checkpoint], logger=logger)
     trainer.fit(model, train_dataloaders=train_loader, val_dataloaders=val_loader)
