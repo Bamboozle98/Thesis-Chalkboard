@@ -15,3 +15,7 @@ Epoch 1/5: 100%|██████████| 185/185 [18:47<00:00,  3.62s/bat
 Epoch 1/5, Loss: 3.6231, Accuracy: 2.50%, Duration: 1128.45 seconds
 Epoch 1/5: 100%|██████████| 185/185 [18:48<00:00,  6.10s/batch, accuracy=2.5, loss=3.6]
 Epoch 2/5:  72%|███████▏  | 134/185 [15:21<08:12,  9.66s/batch, accuracy=2.54, loss=3.59]
+
+
+Batch size = 8, epoch = 30, GPU = 4090
+Epoch 29: 100%|██████████| 739/739 [03:32<00:00,  3.48it/s, v_num=2, val_acc=0.302]

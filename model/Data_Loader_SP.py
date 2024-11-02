@@ -5,7 +5,7 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 import torchvision.transforms as transforms
 from SLIC import create_superpixel_image
-from model.config import dataset_dir
+from model.config import dataset_dir, batch_size
 
 
 def permute_image(x):
@@ -86,7 +86,7 @@ def data_process_SP(dataset_dir = dataset_dir):
     train_dataset = OxfordPetsDataset(train_images, train_labels, transform=transform)
     val_dataset = OxfordPetsDataset(val_images, val_labels, transform=transform)
 
-    train_loader = DataLoader(train_dataset, batch_size=8, shuffle=True, num_workers=4)
-    val_loader = DataLoader(val_dataset, batch_size=8, shuffle=False, num_workers=4)
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=4)
+    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=4)
 
     return train_loader, val_loader, class_names
