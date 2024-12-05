@@ -3,13 +3,16 @@ import torchmetrics
 import pytorch_lightning as pl
 from pytorch_lightning import loggers as pl_loggers
 from model.config import num_epochs, learning_rate
-
+from Resnet18 import ResNet18
 from Data_Loader_SP import data_process_SP
 from MiniCNN import SuperpixelCNN
 from Transformer import TransformerEncoder
 
+# CUDA optimization
+torch.set_float32_matmul_precision('high')
+
+
 # Load datasets
-#train_dataset, validation_dataset, class_names = data_process_SP()
 train_loader, val_loader, class_names = data_process_SP()
 
 
@@ -27,12 +30,13 @@ class LitNetwork(pl.LightningModule):
         n_classes = 37  # Adjust number of classes as necessary
         out_channels = 512
         self.cnn = SuperpixelCNN(in_channels=3, out_channels=out_channels)
+        self.res_cnn = ResNet18()
         self.transformer = TransformerEncoder(out_channels, n_classes)
         self.loss_func = torch.nn.CrossEntropyLoss()
         self.val_acc = torchmetrics.Accuracy("multiclass", num_classes=n_classes, average='micro')
 
     def forward(self, x, superpixel_map):
-        out_image = self.cnn(x)
+        out_image = self.res_cnn(x)
         #print("Shape of superpixel_map:", superpixel_map.shape)
         #print("Shape of out_image:", out_image.shape)
         superpixel_map = superpixel_map.unsqueeze(1).expand_as(out_image)
@@ -54,7 +58,7 @@ class LitNetwork(pl.LightningModule):
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=learning_rate)
         return optimizer
-
+    # self.transformer optimizer to isolate the Resnet18 weights
     def training_step(self, data, batch_idx):
         superpix_map, im, label = data[0], data[1], data[2]
         outs = self.forward(im, superpix_map)
