@@ -55,8 +55,9 @@ class LitNetwork(pl.LightningModule):
         predictions = self.transformer(superpix_vectors)
         return predictions
 
+
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.parameters(), lr=learning_rate)
+        optimizer = torch.optim.Adam(self.transformer.parameters(), lr=learning_rate)
         return optimizer
     # self.transformer optimizer to isolate the Resnet18 weights
     def training_step(self, data, batch_idx):
