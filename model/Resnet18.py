@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torchvision.models as models
 
+
 # Freeze the ResNet18 model to see how the transformer performs
 class ResNet18(nn.Module):
     def __init__(self, num_classes=512, pretrained=True):

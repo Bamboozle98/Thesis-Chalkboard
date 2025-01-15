@@ -7,14 +7,17 @@ from Resnet18 import ResNet18
 from Data_Loader_SP import data_process_SP
 from MiniCNN import SuperpixelCNN
 from Transformer import TransformerEncoder
+from Data_Loader_SP_IN import train_loader as t, val_loader as v
 
 # CUDA optimization
 torch.set_float32_matmul_precision('high')
 
 
-# Load datasets
-train_loader, val_loader, class_names = data_process_SP()
+# Load OxfordPets datasets
+# train_loader, val_loader, class_names = data_process_SP()
 
+# Load ImageNet Datasets
+train_loader, val_loader = t, v
 
 def positionals_encoding(superpixel_map):
     rows, cols = superpixel_map.shape
@@ -27,7 +30,7 @@ def positionals_encoding(superpixel_map):
 class LitNetwork(pl.LightningModule):
     def __init__(self):
         super(LitNetwork, self).__init__()
-        n_classes = 37  # Adjust number of classes as necessary
+        n_classes = 1000  # Adjust number of classes as necessary
         out_channels = 512
         self.cnn = SuperpixelCNN(in_channels=3, out_channels=out_channels)
         self.res_cnn = ResNet18()
