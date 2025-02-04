@@ -22,3 +22,14 @@ Pretrained Resnet50 on ImageNet 2012 Classification Challenge Final Validation A
 Pretrained Resnet101 on ImageNet 2012 Classification Challenge Final Validation Accuracy:
   Val Loss: 0.9767
   Val Accuracy: 0.7599
+
+
+Superpixel Transformer Oxford (SLIC)
+Resnet 18 Trained and Validated with Checkpoints and Learning Rate Scheduler (30 Epochs and Learning Rate Scheduler 0.0001-0.000001)
+val_acc=0.902
+Superpixel Transformer Oxford (SLIC)
+Resnet 50 Trained and Validated with Checkpoints and Learning Rate Scheduler (30 Epochs and Learning Rate Scheduler 0.0001-0.000001)
+val_acc=
+Superpixel Transformer Oxford (SLIC)
+Resnet 101 Trained and Validated with Checkpoints and Learning Rate Scheduler (30 Epochs and Learning Rate Scheduler 0.0001-0.000001)
+val_acc=

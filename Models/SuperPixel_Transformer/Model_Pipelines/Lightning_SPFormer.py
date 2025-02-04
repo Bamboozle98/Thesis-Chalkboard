@@ -8,7 +8,7 @@ from Models.SuperPixel_Transformer.PNP_CNNs.Resnet50 import ResNet50
 from Models.SuperPixel_Transformer.DataLoaders.Data_Loader import load_dataset
 from Models.SuperPixel_Transformer.PNP_CNNs.MiniCNN import SuperpixelCNN
 from Models.SuperPixel_Transformer.Transformer import TransformerEncoder
-from Models.SuperPixel_Transformer.config import dataset_option, cnn_option
+from Models.SuperPixel_Transformer.config import dataset_option, cnn_option, use_checkpoint
 
 # CUDA optimization
 torch.set_float32_matmul_precision('high')
@@ -82,7 +82,14 @@ class LitNetwork(pl.LightningModule):
 if __name__ == "__main__":
     train_loader, val_loader, class_names = load_dataset(dataset_name=dataset_option)
     model = LitNetwork()
-    checkpoint = pl.callbacks.ModelCheckpoint(monitor='val_acc', save_top_k=1, mode='max')
+
+    if use_checkpoint:
+        checkpoint = pl.callbacks.ModelCheckpoint(monitor='val_acc', save_top_k=1, mode='max')
+    elif not use_checkpoint:
+        print("Training Model from Default weights.")
+    else:
+        print("Error with determining Checkpoint usage.")
+
     logger = pl_loggers.TensorBoardLogger(save_dir="../../my_logs")
 
     device = "gpu"
