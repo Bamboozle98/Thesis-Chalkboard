@@ -7,3 +7,6 @@ git rm --cached config.py
 /Models/my_logs
 /Models/__pycache__
 *.mat
+/misc/IN_validation_sort.py
+/misc/scratch.py
+/misc/Validation_patching.py
