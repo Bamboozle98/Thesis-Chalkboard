@@ -5,7 +5,6 @@ from pytorch_lightning import loggers as pl_loggers
 from Models.SuperPixel_Transformer.config import num_epochs, learning_rate
 from Models.SuperPixel_Transformer.PNP_CNNs.Resnet18 import ResNet18
 from Models.SuperPixel_Transformer.PNP_CNNs.Resnet50 import ResNet50
-from Models.SuperPixel_Transformer.DataLoaders.Data_Loader_SP import data_process_SP
 from Models.SuperPixel_Transformer.DataLoaders.Data_Loader import load_dataset
 from Models.SuperPixel_Transformer.PNP_CNNs.MiniCNN import SuperpixelCNN
 from Models.SuperPixel_Transformer.Transformer import TransformerEncoder

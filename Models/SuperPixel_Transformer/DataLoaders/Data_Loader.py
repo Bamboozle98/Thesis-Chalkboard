@@ -8,7 +8,8 @@ from sklearn.model_selection import train_test_split
 import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 from Models.SuperPixel_Transformer.Superpixel_Algorithms.SLIC import create_superpixel_image
-from Models.SuperPixel_Transformer.config import dataset_dir, batch_size
+from Models.SuperPixel_Transformer.config import (oxford_dataset_dir, batch_size, imagenet_train_dir, imagenet_val_dir,
+                                                  dataset_option)
 
 
 class SuperpixelDataset(Dataset):
@@ -49,14 +50,17 @@ class SuperpixelDataset(Dataset):
         return superpixel_map, transformed_image, label
 
 
-def load_dataset(dataset_name='oxford_pets', cache_superpixels=False, dataset_dir=dataset_dir):
+def load_dataset(dataset_name=dataset_option, cache_superpixels=False, ox_dir=oxford_dataset_dir,
+                 in_train=imagenet_train_dir, in_val=imagenet_val_dir):
     """
     Loads the specified dataset (Oxford Pets or ImageNet) with superpixel processing.
 
     Args:
         dataset_name (str): 'oxford_pets' or 'imagenet'
         cache_superpixels (bool): Whether to cache superpixel maps for efficiency.
-        dataset_dir (str): Directory where the dataset is stored.
+        ox_dir (str): Directory where the dataset is stored.
+        in_train (str): Directory where the training set for ImageNet is stored.
+        in_val (str): Directory where the validation set for ImageNet is stored.
 
     Returns:
         train_loader, val_loader, class_names
@@ -69,8 +73,8 @@ def load_dataset(dataset_name='oxford_pets', cache_superpixels=False, dataset_di
     ])
 
     if dataset_name == 'imagenet':
-        train_root_dir = r"E:\ImageNet\unpacked\train"
-        val_root_dir = r"E:\ImageNet\unpacked\validate"
+        train_root_dir = in_train
+        val_root_dir = in_val
 
         train_data = datasets.ImageFolder(train_root_dir)
         val_data = datasets.ImageFolder(val_root_dir)
@@ -91,7 +95,7 @@ def load_dataset(dataset_name='oxford_pets', cache_superpixels=False, dataset_di
         )
 
     elif dataset_name == 'oxford_pets':
-        image_files = glob.glob(os.path.join(dataset_dir, '*.jpg'))
+        image_files = glob.glob(os.path.join(ox_dir, '*.jpg'))
 
         def extract_label(file_name):
             return '_'.join(os.path.basename(file_name).split('_')[:-1])
