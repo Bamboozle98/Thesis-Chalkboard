@@ -4,8 +4,8 @@ from PIL import Image
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 import torchvision.transforms as transforms
-from SLIC import create_superpixel_image
-from model.config import dataset_dir, batch_size
+from Models.SuperPixel_Transformer.Superpixel_Algorithms.SLIC import create_superpixel_image
+from Models.SuperPixel_Transformer.config import dataset_dir, batch_size
 
 
 def permute_image(x):
@@ -39,9 +39,6 @@ class OxfordPetsDataset(Dataset):
         # print(superpixel_map)
         # Get the label
         label = self.labels[idx]
-
-        #print(superpixel_map.shape)
-        #print(transformed_image.shape)
 
         return superpixel_map, transformed_image, label
 

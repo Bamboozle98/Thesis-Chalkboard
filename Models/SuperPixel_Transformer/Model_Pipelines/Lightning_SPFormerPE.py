@@ -2,22 +2,25 @@ import torch
 import torchmetrics
 import pytorch_lightning as pl
 from pytorch_lightning import loggers as pl_loggers
-from model.config import num_epochs, learning_rate
-from Resnet18 import ResNet18
-from Data_Loader_SP import data_process_SP
-from MiniCNN import SuperpixelCNN
-from Transformer import TransformerEncoder
-from Data_Loader_SP_IN import train_loader as t, val_loader as v
+from Models.SuperPixel_Transformer.config import num_epochs, learning_rate
+from Models.SuperPixel_Transformer.PNP_CNNs.Resnet18 import ResNet18
+from Models.SuperPixel_Transformer.PNP_CNNs.Resnet50 import ResNet50
+from Models.SuperPixel_Transformer.DataLoaders.Data_Loader_SP import data_process_SP
+from Models.SuperPixel_Transformer.PNP_CNNs.MiniCNN import SuperpixelCNN
+from Models.SuperPixel_Transformer.Transformer import TransformerEncoder
+from Models.SuperPixel_Transformer.config import dataset_option
 
 # CUDA optimization
 torch.set_float32_matmul_precision('high')
 
 
-# Load OxfordPets datasets
-train_loader, val_loader, class_names = data_process_SP()
+def dataset_used(option):
+    if option == 'Oxford':
+        train_loader, val_loader, class_names = data_process_SP()
+        return train_loader, val_loader, class_names
+    else:
+        print("An invalid dataset was referenced in the config.py file.")
 
-# Load ImageNet Datasets
-#train_loader, val_loader = t, v
 
 def positionals_encoding(superpixel_map,num_dimensions=512):
     rows, cols = superpixel_map.shape
@@ -30,13 +33,17 @@ def positionals_encoding(superpixel_map,num_dimensions=512):
     #pos_encs = pe.positional_encoding(center_rs, center_cs, num_dimensions)
     #return pos_encs
 
+
 def get_centroids(superpixel_map):
-    rows, cols = superpixel_map.shape
-    r_vals, c_vals = torch.meshgrid(rows, cols)
-    center_rs = torch.scatter(r_vals, 1, superpixel_map, reduce='mean')
-    center_cs = torch.scatter(c_vals, 1, superpixel_map, reduce='mean')
+    a, b, rows, cols = superpixel_map.shape
+    r_vals = torch.arange(rows, device=superpixel_map.device)
+    c_vals = torch.arange(cols, device=superpixel_map.device)
+    r_vals, c_vals = torch.meshgrid(r_vals, c_vals)
+    center_rs = torch.scatter_reduce(r_vals, 1, superpixel_map, reduce='mean')
+    center_cs = torch.scatter_reduce(c_vals, 1, superpixel_map, reduce='mean')
     centeroids = torch.cat((center_rs, center_cs), dim=1)
     return centeroids
+
 
 class LitNetwork(pl.LightningModule):
     def __init__(self):
@@ -71,7 +78,7 @@ class LitNetwork(pl.LightningModule):
 
         #pos_encs = positionals_encoding(superpixel_map,self.num_dimensions)
         #superpix_vectors += pos_encs
-
+        print(superpixel_map.shape)
         centroids = get_centroids(superpixel_map)
         pos_encs = self.projection(centroids)
         superpix_vectors += pos_encs
@@ -80,11 +87,11 @@ class LitNetwork(pl.LightningModule):
         predictions = self.transformer(superpix_vectors)
         return predictions
 
-
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.transformer.parameters(), lr=learning_rate)
         return optimizer
     # self.transformer optimizer to isolate the Resnet18 weights
+
     def training_step(self, data, batch_idx):
         superpix_map, im, label = data[0], data[1], data[2]
         outs = self.forward(im, superpix_map)
@@ -100,9 +107,10 @@ class LitNetwork(pl.LightningModule):
 
 
 if __name__ == "__main__":
+    train_loader, val_loader, class_names = dataset_used(dataset_option)
     model = LitNetwork()
     checkpoint = pl.callbacks.ModelCheckpoint(monitor='val_acc', save_top_k=1, mode='max')
-    logger = pl_loggers.TensorBoardLogger(save_dir="my_logs")
+    logger = pl_loggers.TensorBoardLogger(save_dir="../../my_logs")
 
     device = "gpu"  # Adjust to your system's capabilities
 

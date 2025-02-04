@@ -3,7 +3,7 @@ import torch
 from PIL import Image
 from torch.utils.data import Dataset, DataLoader
 from torchvision.transforms import transforms
-from SLIC import create_superpixel_image
+from Models.SuperPixel_Transformer.Superpixel_Algorithms.SLIC import create_superpixel_image
 
 
 class ImageNetDataset(Dataset):

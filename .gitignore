@@ -1,9 +1,9 @@
-model/config.py
+Models/SuperPixel_Transformer/config.py
 git rm --cached config.py
 
 *.png
 *.xml
 *.jpg
-/model/my_logs
-/model/__pycache__
+/Models/my_logs
+/Models/__pycache__
 *.mat

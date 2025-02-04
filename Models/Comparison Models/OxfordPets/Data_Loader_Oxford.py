@@ -4,7 +4,7 @@ from PIL import Image
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 import torchvision.transforms as transforms
-from model.config import dataset_dir, batch_size
+from Models.config import dataset_dir, batch_size
 
 
 class OxfordPetsDataset(Dataset):

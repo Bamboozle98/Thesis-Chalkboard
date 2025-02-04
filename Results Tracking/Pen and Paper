@@ -1,0 +1,24 @@
+Comparison Oxford
+Pretrained and Fine-tuned (30 Epochs and Learning Rate Scheduler 0.001-0.00001) Resnet18 on Oxford Pets Final Validation Accuracy:
+  Train Loss: 0.0017
+  Val Loss: 0.8261
+  Val Accuracy: 0.7957
+Pretrained and Fine-tuned (30 Epochs and Learning Rate Scheduler 0.001-0.00001) Resnet50 on Oxford Pets Final Validation Accuracy:
+  Train Loss: 0.0446
+  Val Loss: 1.4119
+  Val Accuracy: 0.6725
+Pretrained and Fine-tuned (30 Epochs and Learning Rate Scheduler 0.001-0.00001) Resnet101 on Oxford Pets Final Validation Accuracy:
+  Train Loss: 0.0812
+  Val Loss: 1.7652
+  Val Accuracy: 0.6022
+
+Comparison ImageNet
+Pretrained Resnet18 on ImageNet 2012 Classification Challenge Final Validation Accuracy:
+  Val Loss: 1.3525
+  Val Accuracy: 0.6729
+Pretrained Resnet50 on ImageNet 2012 Classification Challenge Final Validation Accuracy:
+  Val Loss: 1.0291
+  Val Accuracy: 0.7456
+Pretrained Resnet101 on ImageNet 2012 Classification Challenge Final Validation Accuracy:
+  Val Loss: 0.9767
+  Val Accuracy: 0.7599

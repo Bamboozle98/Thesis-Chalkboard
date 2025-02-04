@@ -3,11 +3,11 @@ import torch.nn as nn
 import torchvision.models as models
 
 
-# Freeze the ResNet18 model to see how the transformer performs
+# Freeze the ResNet18 Models to see how the transformer performs
 class ResNet18(nn.Module):
     def __init__(self, num_classes=512, pretrained=True):
         super(ResNet18, self).__init__()
-        # Load pre-trained ResNet18 model
+        # Load pre-trained ResNet18 Models
         resnet = models.resnet18(pretrained=pretrained)
 
         # Remove the fully connected layers (last layers)
