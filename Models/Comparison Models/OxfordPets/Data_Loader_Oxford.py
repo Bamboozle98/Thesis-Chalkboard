@@ -4,7 +4,7 @@ from PIL import Image
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 import torchvision.transforms as transforms
-from Models.config import dataset_dir, batch_size
+from Models.SuperPixel_Transformer.config import oxford_dataset_dir, batch_size
 
 
 class OxfordPetsDataset(Dataset):
@@ -38,7 +38,7 @@ class OxfordPetsDataset(Dataset):
 
 
 # Function to create DataLoaders
-def data_process(dataset_dir = dataset_dir):
+def data_process(dataset_dir = oxford_dataset_dir):
 
     image_files = [f for f in os.listdir(dataset_dir) if f.endswith('.jpg')]
 
