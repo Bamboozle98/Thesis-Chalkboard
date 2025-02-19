@@ -40,3 +40,5 @@ val_acc=0.926
 Superpixel Transformer Oxford (SLIC)
 Resnet 101 Trained and Validated with Checkpoints and Learning Rate Scheduler (30 Epochs and Learning Rate Scheduler 0.0001-0.000001)
 val_acc=
+
+First run with PE on Oxford: 0.416

@@ -82,17 +82,19 @@ class LitNetwork(pl.LightningModule):
 if __name__ == "__main__":
     train_loader, val_loader, class_names = load_dataset(dataset_name=dataset_option)
     model = LitNetwork()
-
-    if use_checkpoint:
-        checkpoint = pl.callbacks.ModelCheckpoint(monitor='val_acc', save_top_k=1, mode='max')
-    elif not use_checkpoint:
-        print("Training Model from Default weights.")
-    else:
-        print("Error with determining Checkpoint usage.")
-
     logger = pl_loggers.TensorBoardLogger(save_dir="../../my_logs")
 
     device = "gpu"
 
-    trainer = pl.Trainer(max_epochs=num_epochs, accelerator=device, callbacks=[checkpoint], logger=logger)
-    trainer.fit(model, train_dataloaders=train_loader, val_dataloaders=val_loader)
+    if use_checkpoint:
+        checkpoint = pl.callbacks.ModelCheckpoint(monitor='val_acc', save_top_k=1, mode='max')
+        trainer = pl.Trainer(max_epochs=num_epochs, accelerator=device, callbacks=[checkpoint], logger=logger)
+        trainer.fit(model, train_dataloaders=train_loader, val_dataloaders=val_loader)
+    elif not use_checkpoint:
+        print("Training Model from Default weights.")
+        trainer = pl.Trainer(max_epochs=num_epochs, accelerator=device, logger=logger)
+        trainer.fit(model, train_dataloaders=train_loader, val_dataloaders=val_loader)
+    else:
+        print("Error with determining Checkpoint usage.")
+
+

@@ -5,44 +5,83 @@ from pytorch_lightning import loggers as pl_loggers
 from Models.SuperPixel_Transformer.config import num_epochs, learning_rate
 from Models.SuperPixel_Transformer.PNP_CNNs.Resnet18 import ResNet18
 from Models.SuperPixel_Transformer.PNP_CNNs.Resnet50 import ResNet50
-from Models.SuperPixel_Transformer.DataLoaders.Data_Loader_SP import data_process_SP
+from Models.SuperPixel_Transformer.DataLoaders.Data_Loader import load_dataset
 from Models.SuperPixel_Transformer.PNP_CNNs.MiniCNN import SuperpixelCNN
 from Models.SuperPixel_Transformer.Transformer import TransformerEncoder
-from Models.SuperPixel_Transformer.config import dataset_option
+from Models.SuperPixel_Transformer.config import dataset_option, cnn_option, use_checkpoint
 
 # CUDA optimization
 torch.set_float32_matmul_precision('high')
 
 
-def dataset_used(option):
-    if option == 'Oxford':
-        train_loader, val_loader, class_names = data_process_SP()
-        return train_loader, val_loader, class_names
+def cnn_selection(option):
+    if option == "ResNet18":
+        return ResNet18()
+    elif option == "ResNet50":
+        return ResNet50()
+    elif option == "SuperpixelCNN":
+        return SuperpixelCNN(in_channels=3, out_channels=512)
     else:
-        print("An invalid dataset was referenced in the config.py file.")
+        raise ValueError(f"Invalid CNN selection: {option}")
 
 
-def positionals_encoding(superpixel_map,num_dimensions=512):
-    rows, cols = superpixel_map.shape
-    r_vals, c_vals = torch.meshgrid(rows, cols)
-    center_rs = torch.scatter(r_vals, 1, superpixel_map, reduce='mean')
-    center_cs = torch.scatter(c_vals, 1, superpixel_map, reduce='mean')
-    # standard positional encoding logic...
+def get_centroids(superpixel_map, image, num_superpixels=50):
+    """
+    Computes centroids from a superpixel map.
+    Assumes:
+      - superpixel_map is shape (b, 1, rows, cols) or (b, rows, cols)
+      - image is shape (b, d, rows, cols)
+    The function returns centroids of shape (b, num_superpixels, 2).
+    """
+    with torch.no_grad():
+        # Ensure superpixel_map has 4 dimensions.
+        if superpixel_map.dim() == 3:
+            superpixel_map = superpixel_map.unsqueeze(1)
 
-    #import positionals_encoding as pe
-    #pos_encs = pe.positional_encoding(center_rs, center_cs, num_dimensions)
-    #return pos_encs
+        # Isolate Dimension Values
+        b, _, rows, cols = superpixel_map.shape
+        b_img, d, r, c = image.shape
 
+        # Assertion for debugging
+        assert b == b_img, f"Batch size mismatch: {b} vs {b_img}"
+        assert rows == r and cols == c, "Spatial dimensions must match between superpixel_map and image."
 
-def get_centroids(superpixel_map):
-    a, b, rows, cols = superpixel_map.shape
-    r_vals = torch.arange(rows, device=superpixel_map.device)
-    c_vals = torch.arange(cols, device=superpixel_map.device)
-    r_vals, c_vals = torch.meshgrid(r_vals, c_vals)
-    center_rs = torch.scatter_reduce(r_vals, 1, superpixel_map, reduce='mean')
-    center_cs = torch.scatter_reduce(c_vals, 1, superpixel_map, reduce='mean')
-    centeroids = torch.cat((center_rs, center_cs), dim=1)
-    return centeroids
+        # Flatten superpixel_map to (b, 1, rows*cols)
+        superpixel_map = superpixel_map.view(b, 1, rows * cols)
+
+        # Shift boundaries so that a value of 0 maps to bucket 0 (instead of -1)
+        # Flattened Superpixel dimensions were represented as a column of all pixel values in an image (224x224).
+        # Must be organized into 50 superpixel assignments so that buffer and Superpixel map have matching dimensions
+        # for scatter.
+        boundaries = torch.linspace(-1e-6, superpixel_map.max().float(), num_superpixels + 1,
+                                    device=superpixel_map.device)
+        superpixel_map = (torch.bucketize(superpixel_map.float(), boundaries) - 1).long()
+
+        # Convert R_vals and C_vals to appropriate datatype.
+        # Create row and column indices with shape (1, rows*cols)
+        r_vals = torch.arange(rows, device=superpixel_map.device, dtype=torch.float32)
+        c_vals = torch.arange(cols, device=superpixel_map.device, dtype=torch.float32)
+        r_vals, c_vals = torch.meshgrid(r_vals, c_vals, indexing='ij')
+        r_vals = r_vals.reshape(1, -1)
+        c_vals = c_vals.reshape(1, -1)
+
+        # Expand indices to shape (b, 1, rows*cols) to match Superpixel map and Buffer.
+        r_vals = r_vals.expand(b, 1, -1)
+        c_vals = c_vals.expand(b, 1, -1)
+
+        # Create a positional buffer with shape (b, 1, num_superpixels)
+        pos_buffer = torch.zeros(b, 1, num_superpixels, device=superpixel_map.device, dtype=torch.float32)
+
+        # Compute the mean row and column indices for each superpixel via scatter_reduce
+        center_rs = torch.scatter_reduce(pos_buffer, 2, superpixel_map, r_vals, reduce='mean')
+        center_cs = torch.scatter_reduce(pos_buffer, 2, superpixel_map, c_vals, reduce='mean')
+
+        # Concatenate row and column centroids: shape (b, 2, num_superpixels)
+        centroids = torch.cat((center_rs, center_cs), dim=1)
+        # Permute to shape (b, num_superpixels, 2)
+        centroids = centroids.permute(0, 2, 1)
+
+    return centroids
 
 
 class LitNetwork(pl.LightningModule):
@@ -60,37 +99,47 @@ class LitNetwork(pl.LightningModule):
         self.projection = torch.nn.Linear(2, out_channels)
 
     def forward(self, x, superpixel_map):
-        out_image = self.res_cnn(x)
-        #print("Shape of superpixel_map:", superpixel_map.shape)
-        #print("Shape of out_image:", out_image.shape)
-        superpixel_map = superpixel_map.unsqueeze(1).expand_as(out_image)
+        out_image = self.res_cnn(x)  # shape: (b, 512, rows, cols)
 
-        b,d,r,c = out_image.shape
+        # For feature aggregation, expand the superpixel map as needed.
+        superpixel_map_expanded = superpixel_map.unsqueeze(1).expand_as(out_image)
 
-        #print(out_image.view(b,d,r*c).shape)
-        #print(superpixel_map.view(b,1,r*c).shape)
+        b, d, r, c = out_image.shape
+        num_pix = 50  # number of superpixels
 
-        num_pix = 50 #torch.max(superpixel_map) + 1
-        buffer = torch.zeros((b,d,num_pix)).to(out_image.device)
+        buffer = torch.zeros((b, d, num_pix), device=out_image.device)
 
-        superpix_vectors = torch.scatter_reduce(buffer, 2, superpixel_map.view(b,d,r*c), out_image.view(b,d,r*c), reduce='mean')
-        superpix_vectors = superpix_vectors.permute(0, 2, 1)
+        # Clone the result to break any in-place linkage.
+        superpix_vectors = torch.scatter_reduce(
+            buffer, 2, superpixel_map_expanded.view(b, d, r * c),
+            out_image.view(b, d, r * c), reduce='mean'
+        ).clone()
 
-        #pos_encs = positionals_encoding(superpixel_map,self.num_dimensions)
-        #superpix_vectors += pos_encs
-        print(superpixel_map.shape)
-        centroids = get_centroids(superpixel_map)
-        pos_encs = self.projection(centroids)
+        superpix_vectors = superpix_vectors.permute(0, 2, 1)  # shape: (b, num_superpixels, d)
+
+        # Compute centroids (already no_grad inside get_centroids)
+        centroids = get_centroids(superpixel_map, out_image, num_pix)  # shape: (b, num_superpixels, 2)
+        pos_encs = self.projection(centroids)  # shape: (b, num_superpixels, out_channels)
+
         superpix_vectors += pos_encs
 
-        #print(superpix_vectors.shape)
         predictions = self.transformer(superpix_vectors)
         return predictions
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.transformer.parameters(), lr=learning_rate)
-        return optimizer
-    # self.transformer optimizer to isolate the Resnet18 weights
+        scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.1)
+
+        # Return both optimizer and scheduler
+        return {
+            "optimizer": optimizer,
+            "lr_scheduler": {
+                "scheduler": scheduler,
+                "monitor": "val_acc",  # Monitor validation accuracy
+                "interval": "epoch",  # Adjust learning rate every epoch
+                "frequency": 1  # Frequency of learning rate adjustment
+            }
+        }
 
     def training_step(self, data, batch_idx):
         superpix_map, im, label = data[0], data[1], data[2]
@@ -107,12 +156,19 @@ class LitNetwork(pl.LightningModule):
 
 
 if __name__ == "__main__":
-    train_loader, val_loader, class_names = dataset_used(dataset_option)
+    train_loader, val_loader, class_names = load_dataset(dataset_name=dataset_option)
     model = LitNetwork()
-    checkpoint = pl.callbacks.ModelCheckpoint(monitor='val_acc', save_top_k=1, mode='max')
-    logger = pl_loggers.TensorBoardLogger(save_dir="../../my_logs")
+    logger = pl_loggers.TensorBoardLogger(save_dir="../../PE_oxford_logs")
 
-    device = "gpu"  # Adjust to your system's capabilities
+    device = "gpu"
 
-    trainer = pl.Trainer(max_epochs=num_epochs, accelerator=device, callbacks=[checkpoint], logger=logger)
-    trainer.fit(model, train_dataloaders=train_loader, val_dataloaders=val_loader)
+    if use_checkpoint:
+        checkpoint = pl.callbacks.ModelCheckpoint(monitor='val_acc', save_top_k=1, mode='max')
+        trainer = pl.Trainer(max_epochs=num_epochs, accelerator=device, callbacks=[checkpoint], logger=logger)
+        trainer.fit(model, train_dataloaders=train_loader, val_dataloaders=val_loader)
+    elif not use_checkpoint:
+        print("Training Model from Default weights.")
+        trainer = pl.Trainer(max_epochs=num_epochs, accelerator=device, logger=logger)
+        trainer.fit(model, train_dataloaders=train_loader, val_dataloaders=val_loader)
+    else:
+        print("Error with determining Checkpoint usage.")
