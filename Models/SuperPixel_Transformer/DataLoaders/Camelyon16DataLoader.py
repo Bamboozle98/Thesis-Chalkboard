@@ -92,6 +92,7 @@ class Camelyon16WSIDataset(Dataset):
         # Return the superpixel map, thumbnail, label, scaling factors, full-resolution dims, and the slide path.
         return superpixel_map, thumbnail_trans, label, (scale_x, scale_y), (full_width, full_height), wsi_path
 
+
 def load_camelyon(wsi_train_path=wsi_train, wsi_test_path=wsi_test, csv_path=wsi_test_truth, cache_superpixels=False):
     transform = transforms.Compose([transforms.ToTensor()])
     train_dataset = Camelyon16WSIDataset(

@@ -102,8 +102,9 @@ class LitNetwork(pl.LightningModule):
         # full_dims: (full_width, full_height)
         # wsi_path: file path to the full-resolution slide
         global_superpix_map, thumbnail, label, scale_factors, full_dims, wsi_path = data
+        wsi_path = wsi_path[0]
 
-        # Compute regions from the superpixel map (assumed to be a 2D label map)
+        # Compute regions from the superpixel map (2D label map)
         sp_map_np = global_superpix_map.squeeze().cpu().numpy().astype(np.int32)
         regions = regionprops(sklabel(sp_map_np))
 
