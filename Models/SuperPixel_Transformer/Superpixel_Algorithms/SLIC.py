@@ -12,7 +12,7 @@ def create_superpixel_image(image, n_segments):
     # Convert image to numpy array
     # print("pre numpy")
     # print(image.size())
-    image = permute_image(image)
+    # image = permute_image(image)
     image = np.array(image)
     # print("post numpy")
 

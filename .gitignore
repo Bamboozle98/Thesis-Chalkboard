@@ -1,5 +1,5 @@
 Models/SuperPixel_Transformer/config.py
-git rm --cached config.py
+git rm --cached Models/SuperPixel_Transformer/config.py
 
 *.png
 *.xml

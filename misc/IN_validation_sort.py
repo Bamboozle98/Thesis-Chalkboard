@@ -1,9 +1,9 @@
 import os
 import shutil
 
-val_images_dir = "E:/ImageNet/unpacked/validate"
-devkit_dir = r"E:\ImageNet\ILSVRC2012_devkit_t12"  # Adjust this if needed
-annotations_file = os.path.join(devkit_dir, r"E:\ImageNet\ILSVRC2012_devkit_t12\data\ILSVRC2012_validation_ground_truth.txt")
+val_images_dir = r"D:\Thesis\unpacked\validate"
+devkit_dir = r"D:\Thesis\ILSVRC2012_devkit_t12\ILSVRC2012_devkit_t12"  # Adjust this if needed
+annotations_file = os.path.join(devkit_dir, r"D:\Thesis\ILSVRC2012_devkit_t12\ILSVRC2012_devkit_t12\data\ILSVRC2012_validation_ground_truth.txt")
 
 # Load ground-truth labels
 with open(annotations_file, "r") as f:

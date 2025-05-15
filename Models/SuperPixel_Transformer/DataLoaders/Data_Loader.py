@@ -53,14 +53,14 @@ class SuperpixelDataset(Dataset):
 def load_dataset(dataset_name=dataset_option, cache_superpixels=False, ox_dir=oxford_dataset_dir,
                  in_train=imagenet_train_dir, in_val=imagenet_val_dir):
     """
-    Loads the specified dataset (Oxford Pets or ImageNet) with superpixel processing.
+    Loads the specified dataset (Oxford Pets or ImageNetDataset) with superpixel processing.
 
     Args:
         dataset_name (str): 'oxford_pets' or 'imagenet'
         cache_superpixels (bool): Whether to cache superpixel maps for efficiency.
         ox_dir (str): Directory where the dataset is stored.
-        in_train (str): Directory where the training set for ImageNet is stored.
-        in_val (str): Directory where the validation set for ImageNet is stored.
+        in_train (str): Directory where the training set for ImageNetDataset is stored.
+        in_val (str): Directory where the validation set for ImageNetDataset is stored.
 
     Returns:
         train_loader, val_loader, class_names

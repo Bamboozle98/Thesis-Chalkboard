@@ -2,10 +2,10 @@ import os
 import shutil
 
 # Path to your validation set
-val_dir = "E:/ImageNet/unpacked/validate"
+val_dir = r"D:\Thesis\unpacked\validate"
 
 # Load the label-to-synset mapping
-mapping_file = "E:/ImageNet/ILSVRC2012_devkit_t12/data/map_clsloc.txt"  # Adjust path if needed
+mapping_file = "D:\Thesis\ILSVRC2012_devkit_t12\ILSVRC2012_devkit_t12\data\map_clsloc.txt"  # Adjust path if needed
 with open(mapping_file, "r") as f:
     lines = f.readlines()
 

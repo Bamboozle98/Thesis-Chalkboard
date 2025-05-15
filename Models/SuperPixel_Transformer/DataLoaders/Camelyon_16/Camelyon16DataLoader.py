@@ -1,10 +1,10 @@
 import os
 import csv
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset, DataLoader, random_split
 import openslide
 from torchvision import transforms
 from Models.SuperPixel_Transformer.Superpixel_Algorithms.SLIC import create_superpixel_image
-from Models.SuperPixel_Transformer.config import wsi_train, wsi_test, wsi_test_truth
+from Models.SuperPixel_Transformer.config import wsi_dir
 
 
 class Camelyon16WSIDataset(Dataset):
@@ -48,7 +48,7 @@ class Camelyon16WSIDataset(Dataset):
             for file_name in self.wsi_files:
                 wsi_path = os.path.join(self.wsi_dir, file_name)
                 slide = openslide.OpenSlide(wsi_path)
-                full_width, full_height = slide.level_dimensions[0]
+                full_width, full_height = slide.level_dimensions[4]
                 thumbnail = slide.get_thumbnail(self.thumbnail_size).convert("RGB")
                 scale_x = full_width / thumbnail.width
                 scale_y = full_height / thumbnail.height
@@ -66,7 +66,7 @@ class Camelyon16WSIDataset(Dataset):
         wsi_file = self.wsi_files[idx]
         wsi_path = os.path.join(self.wsi_dir, wsi_file)
         slide = openslide.OpenSlide(wsi_path)
-        full_width, full_height = slide.level_dimensions[0]
+        full_width, full_height = slide.level_dimensions[4]
         thumbnail = slide.get_thumbnail(self.thumbnail_size).convert("RGB")
         scale_x = full_width / thumbnail.width
         scale_y = full_height / thumbnail.height
@@ -92,26 +92,32 @@ class Camelyon16WSIDataset(Dataset):
         # Return the superpixel map, thumbnail, label, scaling factors, full-resolution dims, and the slide path.
         return superpixel_map, thumbnail_trans, label, (scale_x, scale_y), (full_width, full_height), wsi_path
 
+    transform = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+    ])
 
-def load_camelyon(wsi_train_path=wsi_train, wsi_test_path=wsi_test, csv_path=wsi_test_truth, cache_superpixels=False):
-    transform = transforms.Compose([transforms.ToTensor()])
-    train_dataset = Camelyon16WSIDataset(
-        wsi_dir=wsi_train_path,
-        transform=transform,
-        thumbnail_size=(2048, 2048),
-        num_segments=50,
-        cache_superpixels=cache_superpixels,
-        csv_path=None
-    )
+def load_camelyon(wsi_dir, transform, thumbnail_size=(2048, 2048),
+                               num_segments=50, cache_superpixels=False,
+                               csv_path=None, val_split=0.2):
+    # Create the dataset using your existing Camelyon16WSIDataset
+
+
+    dataset = Camelyon16WSIDataset(wsi_dir=wsi_dir, transform=transform,
+                                   thumbnail_size=thumbnail_size, num_segments=num_segments,
+                                   cache_superpixels=cache_superpixels, csv_path=csv_path)
+
+    # Compute split lengths
+    total_len = len(dataset)
+    val_len = int(total_len * val_split)
+    train_len = total_len - val_len
+
+    # Random split into training and validation datasets
+    train_dataset, val_dataset = random_split(dataset, [train_len, val_len])
+
+    # Create DataLoaders for each split
     train_loader = DataLoader(train_dataset, batch_size=1, shuffle=True, num_workers=1)
-    val_dataset = Camelyon16WSIDataset(
-        wsi_dir=wsi_test_path,
-        transform=transform,
-        thumbnail_size=(2048, 2048),
-        num_segments=50,
-        cache_superpixels=cache_superpixels,
-        csv_path=csv_path
-    )
     val_loader = DataLoader(val_dataset, batch_size=1, shuffle=False, num_workers=1)
+
     return train_loader, val_loader
 
