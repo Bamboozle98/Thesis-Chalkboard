@@ -2,9 +2,12 @@ import torch
 import torchmetrics
 import pytorch_lightning as pl
 from pytorch_lightning import loggers as pl_loggers
+
+from Models.SuperPixel_Transformer.PNP_CNNs.Resnet101 import ResNet101
 from Models.SuperPixel_Transformer.config import num_epochs, learning_rate
 from Models.SuperPixel_Transformer.PNP_CNNs.Resnet18 import ResNet18
 from Models.SuperPixel_Transformer.PNP_CNNs.Resnet50 import ResNet50
+from Models.SuperPixel_Transformer.PNP_CNNs.Resnet101 import ResNet101
 from Models.SuperPixel_Transformer.DataLoaders.Data_Loader import load_dataset
 from Models.SuperPixel_Transformer.PNP_CNNs.MiniCNN import SuperpixelCNN
 from Models.SuperPixel_Transformer.Transformer import TransformerEncoder
@@ -19,6 +22,8 @@ def cnn_selection(option):
         return ResNet18()
     elif option == "ResNet50":
         return ResNet50()
+    elif option == "ResNet101":
+        return ResNet101()
     elif option == "SuperpixelCNN":
         return SuperpixelCNN(in_channels=3, out_channels=512)
     else:
@@ -75,6 +80,11 @@ def get_centroids(superpixel_map, image, num_superpixels=50):
         # Compute the mean row and column indices for each superpixel via scatter_reduce
         center_rs = torch.scatter_reduce(pos_buffer, 2, superpixel_map, r_vals, reduce='mean')
         center_cs = torch.scatter_reduce(pos_buffer, 2, superpixel_map, c_vals, reduce='mean')
+
+        center_rs_maps = superpixel_map[center_rs]
+
+        top = pos_buffer[:,:,0] - center_rs_maps
+        cov = torch.scatter_reduce(top, 2, superpixel_map, center_cs, reduce='mean')
 
         # Concatenate row and column centroids: shape (b, 2, num_superpixels)
         centroids = torch.cat((center_rs, center_cs), dim=1)

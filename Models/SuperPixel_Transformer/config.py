@@ -4,18 +4,18 @@ batch_size = 16
 num_superpixels = 50
 
 # Whether to load the most recent checkpoint or train from scratch
-use_checkpoint = True
+use_checkpoint = False
 
 # Options for dataset_option:
 # 'oxford_pets', 'imagenet', 'wsi', or 'single_image'
-dataset_option = 'camelyon_16'
+dataset_option = 'oxford_pets'
 
 # Options for CNN model:
 # 'ResNet18', 'ResNet50', 'SuperpixelCNN', 'CustomResNet20'
-cnn_option = 'CustomResNet'
+cnn_option = 'ResNet18'
 
 # Directory paths for various dataset types:
-oxford_dataset_dir = r'C:\Users\mccutcheonc18\PycharmProjects\Thesis-Chalkboard\OxfordPets\images'
+oxford_dataset_dir = r'U:\Oxford\images\images'
 imagenet_train_dir = r"C:\Users\mccutcheonc18\PycharmProjects\Thesis-Chalkboard\ImageNetDataset\train"
 imagenet_val_dir = r"C:\Users\mccutcheonc18\PycharmProjects\Thesis-Chalkboard\ImageNetDataset\validate"
 

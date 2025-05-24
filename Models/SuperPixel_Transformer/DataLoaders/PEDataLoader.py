@@ -14,20 +14,13 @@ from Models.SuperPixel_Transformer.config import (oxford_dataset_dir, batch_size
 
 
 class SuperpixelDataset(Dataset):
-    def __init__(self, image_paths, labels, transform=None, n_segments=50, cache_superpixels=False):
+    def __init__(self, image_paths, labels, transform=None, n_segments=50):
         self.image_paths = image_paths
         self.labels = labels
         self.transform = transform
         self.n_segments = n_segments
-        self.cache_superpixels = cache_superpixels
-        self.superpixel_cache = {}
 
-        if self.cache_superpixels:
-            print("Precomputing superpixel maps for efficiency...")
-            for img_path in self.image_paths:
-                image = Image.open(img_path).convert("RGB")
-                tensor_image = transforms.ToTensor()(image)
-                self.superpixel_cache[img_path] = create_superpixel_image(tensor_image, n_segments=n_segments)
+
 
     def __len__(self):
         return len(self.image_paths)
@@ -86,13 +79,11 @@ def load_dataset(dataset_name=dataset_option, cache_superpixels=False, ox_dir=ox
             [img_path for img_path, _ in train_data.samples],
             [label for _, label in train_data.samples],
             transform=transform,
-            cache_superpixels=cache_superpixels
         )
         val_dataset = SuperpixelDataset(
             [img_path for img_path, _ in val_data.samples],
             [label for _, label in val_data.samples],
             transform=transform,
-            cache_superpixels=cache_superpixels
         )
 
     elif dataset_name == 'oxford_pets':
@@ -117,8 +108,8 @@ def load_dataset(dataset_name=dataset_option, cache_superpixels=False, ox_dir=ox
             image_paths, encoded_labels, test_size=0.2, random_state=42
         )
 
-        train_dataset = SuperpixelDataset(train_images, train_labels, transform=transform, cache_superpixels=cache_superpixels)
-        val_dataset = SuperpixelDataset(val_images, val_labels, transform=transform, cache_superpixels=cache_superpixels)
+        train_dataset = SuperpixelDataset(train_images, train_labels, transform=transform)
+        val_dataset = SuperpixelDataset(val_images, val_labels, transform=transform)
 
     else:
         raise ValueError(f"Unsupported dataset: {dataset_name}. Choose 'oxford_pets' or 'imagenet'.")

@@ -5,6 +5,7 @@ from pytorch_lightning import loggers as pl_loggers
 from Models.SuperPixel_Transformer.config import num_epochs, learning_rate
 from Models.SuperPixel_Transformer.PNP_CNNs.Resnet18 import ResNet18
 from Models.SuperPixel_Transformer.PNP_CNNs.Resnet50 import ResNet50
+from Models.SuperPixel_Transformer.PNP_CNNs.Resnet101 import ResNet101
 from Models.SuperPixel_Transformer.DataLoaders.Data_Loader import load_dataset
 from Models.SuperPixel_Transformer.PNP_CNNs.MiniCNN import SuperpixelCNN
 from Models.SuperPixel_Transformer.Transformer import TransformerEncoder
@@ -19,6 +20,8 @@ def cnn_selection(option):
         return ResNet18()
     elif option == "ResNet50":
         return ResNet50()
+    elif option == "ResNet101":
+        return ResNet101()
     elif option == "SuperpixelCNN":
         return SuperpixelCNN(in_channels=3, out_channels=512)
     else:
@@ -85,7 +88,7 @@ if __name__ == "__main__":
 
     if dataset_option in ['oxford_pets', 'image_net']:
         train_loader, val_loader, class_names = load_dataset(dataset_name=dataset_option)
-        logger = pl_loggers.TensorBoardLogger(save_dir="../../my_logs")
+        logger = pl_loggers.TensorBoardLogger(save_dir="../../../my_logs")
     else:
         raise ValueError("Error with dataset loader selection.")
 
