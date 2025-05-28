@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torchvision.models as models
+from Models.SuperPixel_Transformer.config import match_size
 
 
 class ResNet50(nn.Module):
@@ -19,7 +20,7 @@ class ResNet50(nn.Module):
         self.conv_out = nn.Conv2d(512, num_classes, kernel_size=1)  # Adjust channels to 512 (or num_classes)
 
         # Upsample the output to match the input size (224x224)
-        self.upsample = nn.Upsample(size=(224, 224), mode='bilinear', align_corners=False)
+        self.upsample = nn.Upsample(size=match_size, mode='bilinear', align_corners=False)
 
     def forward(self, x):
         x = self.features(x)       # Extract feature maps from ResNet

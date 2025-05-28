@@ -10,7 +10,7 @@ import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 from Models.SuperPixel_Transformer.Superpixel_Algorithms.SLIC import create_superpixel_image
 from Models.SuperPixel_Transformer.config import (oxford_dataset_dir, batch_size, imagenet_train_dir, imagenet_val_dir,
-                                                  dataset_option)
+                                                  dataset_option, high_res_dir, match_size)
 
 
 class SuperpixelDataset(Dataset):
@@ -66,7 +66,7 @@ def load_dataset(dataset_name=dataset_option, cache_superpixels=False, ox_dir=ox
     Returns:
         train_loader, val_loader, class_names
     """
-    IMG_SIZE = (224, 224)
+    IMG_SIZE = match_size
     transform = transforms.Compose([
         transforms.Resize(IMG_SIZE),
         transforms.ToTensor(),
@@ -81,6 +81,7 @@ def load_dataset(dataset_name=dataset_option, cache_superpixels=False, ox_dir=ox
         val_data = datasets.ImageFolder(val_root_dir)
 
         class_names = train_data.classes
+        n_classes = len(class_names)
 
         train_dataset = SuperpixelDataset(
             [img_path for img_path, _ in train_data.samples],
@@ -94,6 +95,38 @@ def load_dataset(dataset_name=dataset_option, cache_superpixels=False, ox_dir=ox
             transform=transform,
             cache_superpixels=cache_superpixels
         )
+
+
+    elif dataset_name == 'high_res':
+        image_paths = []
+        labels = []
+
+        for class_name in os.listdir(high_res_dir):
+            class_dir = os.path.join(high_res_dir, class_name)
+
+            if os.path.isdir(class_dir):
+                for img_file in glob.glob(os.path.join(class_dir, '*.jpg')):
+                    image_paths.append(img_file)
+
+                    labels.append(class_name)
+
+        label_encoder = LabelEncoder()
+
+        encoded_labels = label_encoder.fit_transform(labels)
+
+        class_names = label_encoder.classes_
+        n_classes = len(class_names)
+
+        train_images, val_images, train_labels, val_labels = train_test_split(image_paths, encoded_labels,
+                                                                              test_size=0.2, random_state=42)
+
+        train_dataset = SuperpixelDataset(train_images, train_labels, transform=transform,
+                                          cache_superpixels=cache_superpixels)
+
+        val_dataset = SuperpixelDataset(val_images, val_labels, transform=transform,
+                                        cache_superpixels=cache_superpixels)
+
+
 
     elif dataset_name == 'oxford_pets':
         image_files = glob.glob(os.path.join(ox_dir, '*.jpg'))
@@ -112,6 +145,7 @@ def load_dataset(dataset_name=dataset_option, cache_superpixels=False, ox_dir=ox
         label_encoder = LabelEncoder()
         encoded_labels = label_encoder.fit_transform(labels)
         class_names = label_encoder.classes_
+        n_classes = len(class_names)
 
         train_images, val_images, train_labels, val_labels = train_test_split(
             image_paths, encoded_labels, test_size=0.2, random_state=42
@@ -120,10 +154,11 @@ def load_dataset(dataset_name=dataset_option, cache_superpixels=False, ox_dir=ox
         train_dataset = SuperpixelDataset(train_images, train_labels, transform=transform, cache_superpixels=cache_superpixels)
         val_dataset = SuperpixelDataset(val_images, val_labels, transform=transform, cache_superpixels=cache_superpixels)
 
+
     else:
         raise ValueError(f"Unsupported dataset: {dataset_name}. Choose 'oxford_pets' or 'imagenet'.")
 
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=4)
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=4)
 
-    return train_loader, val_loader, class_names
+    return train_loader, val_loader, class_names, n_classes

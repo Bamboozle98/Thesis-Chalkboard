@@ -72,9 +72,9 @@ def covariance(x_mean: float, y_mean: float, coords: torch.Tensor) -> torch.Tens
 
 
 class LitNetwork(pl.LightningModule):
-    def __init__(self):
+    def __init__(self, n_classes):
         super(LitNetwork, self).__init__()
-        n_classes = 37  # Adjust number of classes as necessary
+        self.num_classes = n_classes  # Adjust number of classes as necessary
         out_channels = 512
         self.cnn = cnn_selection(cnn_option)
         self.transformer = TransformerEncoder(out_channels, n_classes)
@@ -169,14 +169,15 @@ class LitNetwork(pl.LightningModule):
 
 
 if __name__ == "__main__":
-    model = LitNetwork()
     device = "gpu"
 
-    if dataset_option in ['oxford_pets', 'image_net']:
-        train_loader, val_loader, class_names = load_dataset(dataset_name=dataset_option)
+    if dataset_option in ['oxford_pets', 'image_net', 'high_res']:
+        train_loader, val_loader, class_names, n_classes = load_dataset(dataset_name=dataset_option)
         logger = pl_loggers.TensorBoardLogger(save_dir="../../../my_logs")
     else:
         raise ValueError("Error with dataset loader selection.")
+
+    model = LitNetwork(n_classes=n_classes)
 
     if use_checkpoint:
         checkpoint = pl.callbacks.ModelCheckpoint(monitor='val_acc', save_top_k=1, mode='max')
