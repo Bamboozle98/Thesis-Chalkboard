@@ -3,6 +3,7 @@ import glob
 import torch
 from torch.utils.data import Dataset, DataLoader
 from PIL import Image
+from torchvision.datasets import ImageNet
 from skimage.measure import regionprops
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
@@ -10,7 +11,7 @@ import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 from Models.SuperPixel_Transformer.Superpixel_Algorithms.SLIC import create_superpixel_image
 from Models.SuperPixel_Transformer.config import (oxford_dataset_dir, batch_size, imagenet_train_dir, imagenet_val_dir,
-                                                  dataset_option, high_res_dir, match_size)
+                                                  dataset_option, high_res_dir, match_size, imagenet_root)
 
 
 class SuperpixelDataset(Dataset):
@@ -73,25 +74,22 @@ def load_dataset(dataset_name=dataset_option, cache_superpixels=False, ox_dir=ox
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
     ])
 
-    if dataset_name == 'imagenet':
-        train_root_dir = in_train
-        val_root_dir = in_val
-
-        train_data = datasets.ImageFolder(train_root_dir)
-        val_data = datasets.ImageFolder(val_root_dir)
+    if dataset_name == 'image_net':
+        train_data = ImageNet(root=imagenet_root, split='train', transform=transform)
+        val_data = ImageNet(root=imagenet_root, split='val', transform=transform)
 
         class_names = train_data.classes
         n_classes = len(class_names)
 
         train_dataset = SuperpixelDataset(
-            [img_path for img_path, _ in train_data.samples],
-            [label for _, label in train_data.samples],
+            [p for p, _ in train_data.samples],
+            [l for _, l in train_data.samples],
             transform=transform,
             cache_superpixels=cache_superpixels
         )
         val_dataset = SuperpixelDataset(
-            [img_path for img_path, _ in val_data.samples],
-            [label for _, label in val_data.samples],
+            [p for p, _ in val_data.samples],
+            [l for _, l in val_data.samples],
             transform=transform,
             cache_superpixels=cache_superpixels
         )

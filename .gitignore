@@ -1,5 +1,5 @@
-Models/SuperPixel_Transformer/config.py
-git rm --cached Models/SuperPixel_Transformer/config.py
+Thesis-Chalkboard/Models/SuperPixel_Transformer/config.py
+git rm --cached Thesis-Chalkboard/Models/SuperPixel_Transformer/config.py
 
 *.png
 *.xml
