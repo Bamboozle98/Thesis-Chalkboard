@@ -17,7 +17,7 @@ def extract_levelN_patch(slide, bbox, level):
 # 1) CONFIG
 # ───────────────────────────────────────────────────────────────
 # wsi_path       = r"E:\Camelyon_16_Data\images\normal_001.tif"
-wsi_path       = r"E:\Geradt\pathology\002.tiff"
+wsi_path       = r"Downloads/normal_082.tif"
 thumbnail_size = (2048, 2048)
 num_segments   = 50
 patch_level    = 2

@@ -1,18 +1,13 @@
 import openslide
 import os
 
-file_dir = r"E:\Geradt\pathology"
+file_path = r"C:\Users\cbran\Documents\ECU\Thesis\normal_082.tif"
 dim_list = []
 
-
-for file in os.listdir(file_dir):
-    if file.lower().endswith(('.tif', '.tiff')):
-        file_path = os.path.join(file_dir, file)
-        slide = openslide.OpenSlide(file_path)
-        dim_list.append(slide.level_dimensions[0])
-
-print(max(dim_list))
-print(min(dim_list))
+slide = openslide.OpenSlide(file_path)
+# Print dimensions for all pyramid levels
+for i, dims in enumerate(slide.level_dimensions):
+    print(f"Level {i}: {dims[0]} x {dims[1]}")
 
 
 
