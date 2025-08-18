@@ -10,3 +10,5 @@ git rm --cached Thesis-Chalkboard/Models/SuperPixel_Transformer/config.py
 /misc/IN_validation_sort.py
 /misc/scratch.py
 /misc/Validation_patching.py
+/model/__pycache__
+/model/my_logs
