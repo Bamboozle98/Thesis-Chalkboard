@@ -1,7 +1,6 @@
-import torch
 import torch.nn as nn
 import torchvision.models as models
-from Models.SuperPixel_Transformer.config import match_size
+from Models.CONFIG.config import match_size
 
 
 class ResNet50(nn.Module):

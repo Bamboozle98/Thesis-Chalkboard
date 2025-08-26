@@ -1,5 +1,4 @@
 import os
-import math
 import numpy as np
 import openslide
 import torch
@@ -16,9 +15,9 @@ from Models.SuperPixel_Transformer.PNP_CNNs.Camelyon_Resnet_18 import ResNet18
 from Models.SuperPixel_Transformer.PNP_CNNs.Resnet50       import ResNet50
 from Models.SuperPixel_Transformer.PNP_CNNs.MiniCNN       import SuperpixelCNN
 from Models.SuperPixel_Transformer.PNP_CNNs.customResnet  import CustomResNet20
-from Models.SuperPixel_Transformer.Transformer            import TransformerEncoder
+from Models.SuperPixel_Transformer.Transformer.Transformer import TransformerEncoder
 from Models.SuperPixel_Transformer.DataLoaders.Camelyon_16.Camelyon16DataLoader import load_camelyon
-from Models.SuperPixel_Transformer.config import (
+from Models.CONFIG.config import (
     num_epochs, learning_rate, cnn_option, use_checkpoint, wsi_dir, ann_dir
 )
 

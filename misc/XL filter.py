@@ -1,6 +1,6 @@
 import pandas as pd
 import os
-from Models.SuperPixel_Transformer.config import (
+from Models.CONFIG.config import (
     g_dir,      # your WSI folder
     g_ann       # your Excel annotations path
 )

@@ -1,10 +1,10 @@
-Thesis-Chalkboard/Models/SuperPixel_Transformer/config.py
-git rm --cached Thesis-Chalkboard/Models/SuperPixel_Transformer/config.py
+Models/CONFIG/config.py
+git rm --cached Models/CONFIG/config.py
 
 *.png
 *.xml
 *.jpg
-/Models/my_logs
+/Models/Results/natural_logs
 /Models/__pycache__
 *.mat
 /misc/IN_validation_sort.py

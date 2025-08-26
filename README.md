@@ -1,52 +1,71 @@
-# Thesis-Chalkboard
-Planning and Development of Super-Pixel Transformer. Will be cleaned up, or offloaded to separate repository upon 
-completion. This repo will be the groundwork for multiple iterations and tests of different models. We will build our 
-models with SLIC and Segment Anything, and we will test pre-trained, and trained-from-scratch transformers. 
+# Thesis-Superpatcher
+Research and Development of Superpatcher Transformers for Image and Whole Slide Image (WSI) Analysis.  
+This repository contains the experimental pipelines, training code, and model iterations developed as part of my thesis at ECU. The framework builds on superpixel-based tokenization for transformers, supporting both standard image datasets and large-scale WSI pipelines.  
 
-## Major Goals:
-- [ ] Create a functioning SP Transformer Model
-  - [x] Get a functioning transformer that classifies the Oxford Pets Dataset.
-  - [x] Run the transformer with SLIC in preprocessing.
-  - [ ] Create a mini CNN used to convolve and pool the superpixels into standardize feature vectors.
-  - [ ] Pass vectorized superpixels to Transformer for classification.
-  - [ ] Ensure and optimize competitive results for our SP Transformer.
-- [ ] Justify the model's Existence
-  - [ ] Create a Plan based on related works for tasks and datasets to compare on.
-  - [ ] Test model on different tasks, collect results with an emphasis on accuracy and efficiency.
-    - - [ ] Test the model with Segment Anything.
+## Overview
+Superpatcher leverages **SLIC superpixel segmentation** to convert images into structured sets of tokens. Each superpixel is vectorized through a CNN backbone, aggregated, and then passed into a Transformer encoder for classification. This approach provides a middle ground between the **local feature focus of CNNs** and the **global context modeling of Transformers**.  
 
-## The Plan
-Build a model that preprocesses an image with SLIC, extracts a superpixel index map, convolve each super pixel to create 
-feature vectors, and then pass those vectors as tokens into a transformer for classification. 
+Two primary pipelines are developed:
+1. **Standard-Superpatcher** – designed for benchmark datasets like Oxford Pets, ImageNet subsets, and custom high-resolution datasets.  
+2. **WSI-Superpatcher** – tailored for histopathology data (e.g., Camelyon16/17), capable of handling extremely large slides by segmenting tissue regions into superpixels, extracting patches, and encoding them as transformer inputs.  
 
-## The Holy Whiteboard
-The following whiteboard acts as the high-level blueprint for our research project. The goal is to take images that have 
-been broken up into an arbitrary number of superpixels and convert those superpixels into standardized vectors for 
-a transformer. 
-![IMG_1128.jpg](ReadMe_Images%2FIMG_1128.jpg)
-### Superpixel Algorithms
-We are currently considering SLIC and Segment Anything for generating superpixels in our model. SLIC is a 
-straightforward method that takes an image and the desired number of SPs(Superpixels) and generates a corresponding 
-image with SP boundaries labeled. Segment Anything takes it a step further by grouping the SPs based on similarities to 
-truly segment the image. This has the advantage of allowing us to train our model on more complicated tasks derived from 
-segmentation, but makes it redundant to test a model on solely segmentation (cause the image is already segmented).
-### Converting Superpixels into a valid input for a transformer
-Unfortunately, not all superpixels are made equal. This is problematic because Transformers require uniform tokenized 
-inputs to map attention between all input tokens in an image. So how do we standardize our superpixels for input? There
-are several potential ways, but the one we are focused on involves convolving each superpixel in each image and taking the
-feature vector from our convolution network and using said vector as the input for our transformer. A rough idea of this
-concept is demonstrated below. However, a glaring issue with this process is the performance cost. A paramount advantage 
-of transformers vs other network types is their computational efficiency at large scales. If we stop to both generate 
-superpixels and convolve all of those superpixels for every image during training, then the time efficiency of our model 
-might suffer severely. 
-![IMG_1133.jpg](ReadMe_Images%2FIMG_1133.jpg)
-### The End of the line
-Frankly, if we can vectorize our superpixels into truly USEFUL information for our transformer, and the transformer
-provides promising results with that input, then we have accomplished our largest PRACTICAL implementation goal for this research.
-The next step will be demonstrating why this methodology is valuable by seeing what results we get on a spectrum of Computer
-Vision tasks as well as benchmarking our model against others like it, and the industry standards. This will require looking
-at the tasks and datasets our 'competitors' are using and testing our model iterations on them.
-## The General Plan (From the Thesis Perspective)
-Most of our version 1 model will be built using SLIC on the Oxford Pets Dataset for classification, once this iteration 
-is completed, we will branch out into other iterations and tests. 
-![IMG_1135.jpg](ReadMe_Images%2FIMG_1135.jpg)
+## Major Goals
+- Develop a scalable **superpixel-to-token pipeline** for transformer-based image classification.  
+- Compare **baseline CNNs, Vision Transformers, and Superpatcher models** across multiple datasets.  
+- Investigate the role of **positional encodings** (centroid-based) and **covariance embeddings** in improving superpixel transformer performance.  
+- Demonstrate that superpixel-driven tokenization provides **computationally efficient** yet **semantically meaningful** representations for both natural and medical images.  
+
+## Setup
+
+This project requires **CUDA 12.4** and PyTorch with GPU acceleration.  
+You can download and install CUDA 12.4 here:  
+[CUDA 12.4 (Windows x86_64)](https://developer.nvidia.com/cuda-12-4-0-download-archive?target_os=Windows&target_arch=x86_64&target_version=11&target_type=exe_local)  
+
+## Installation
+
+
+### 1. Create and activate a virtual environment (example with conda)
+conda create -n sptransformer python=3.10
+conda activate sptransformer
+
+### 2. Install PyTorch and TorchVision compiled for CUDA 12.4
+pip install torch==2.4.1+cu124 torchvision==0.19.1+cu124 --index-url https://download.pytorch.org/whl/cu124
+
+### 3. Install remaining dependencies
+pip install -r requirements.txt
+
+
+## Methodology
+
+### Superpixel Generation
+- **SLIC (Simple Linear Iterative Clustering):** Used across all datasets for consistent and interpretable superpixel segmentation.  
+- **WSI Preprocessing:** Includes tissue extraction, Otsu-thresholding at thumbnail resolution, coordinate mapping to high-resolution space, and superpixel segmentation at relevant pyramid levels.  
+
+### Feature Extraction
+- Images are passed through **CNN backbones** (ResNet18/50/101) to obtain feature maps.  
+- Superpixel maps guide aggregation: features corresponding to each superpixel are averaged or upsampled into a fixed-length vector.  
+
+### Transformer Encoding
+- Superpixel vectors are treated as tokens.  
+- Optional **positional encodings** (based on superpixel centroids) and **covariance embeddings** are added.  
+- Tokens are processed through Transformer encoder layers for classification or regression tasks.  
+
+## Benchmarking & Evaluation
+- **Datasets:** Oxford Pets, ImageNet subsets, Custom High-Res Bird-Cat-Dog dataset, Camelyon-16/17 WSIs.  
+- **Baselines:** Pre-trained ResNet variants and Vision Transformers at multiple input resolutions (224, 512, 1024).  
+- **Superpatcher Variants:**  
+  - Without positional/covariance embeddings  
+  - With positional/covariance embeddings  
+
+Evaluation is performed using classification accuracy (for natural image datasets) and regression/classification scores (for WSIs).  
+
+## Repository Layout (current)
+- `Data/` – Directory for different datasets. GitHub only contains Oxford Pets You will have to get the other datasets and provide the correct paths in the config to run the models.   
+- `Models/` – CNN backbones, Superpixel transformers, embedding modules, and their Results.  
+- `misc/` – A series of scripts that were used to generate visualizations and test ides.
+
+## Status
+The repository is under active development and will continue to evolve as experiments are finalized for thesis defense. Future work may include:  
+- Expanding beyond classification to segmentation tasks.  
+- Exploring alternative superpixel algorithms and hybrid graph-based representations.  
+- Optimizing for multi-GPU distributed training on WSI-scale data.  

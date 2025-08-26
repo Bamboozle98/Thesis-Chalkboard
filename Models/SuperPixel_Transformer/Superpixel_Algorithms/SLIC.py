@@ -1,8 +1,5 @@
 import numpy as np
 from skimage.segmentation import slic
-from skimage.color import label2rgb
-from PIL import Image
-from Models.SuperPixel_Transformer.config import num_superpixels
 import torch
 
 def permute_image(x):

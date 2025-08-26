@@ -2,8 +2,7 @@ import torch
 import torchvision
 from torch.utils.data import Dataset
 import torchvision.transforms as transforms
-import torchvision.datasets as datasets
-from Models.SuperPixel_Transformer.config import imagenet_val_dir, imagenet_train_dir
+from Models.CONFIG.config import imagenet_val_dir, imagenet_train_dir
 
 train_root_dir = imagenet_train_dir
 val_root_dir = imagenet_val_dir

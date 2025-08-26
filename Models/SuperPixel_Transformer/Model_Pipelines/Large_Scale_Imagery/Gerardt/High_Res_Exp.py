@@ -1,14 +1,11 @@
 # Models/SuperPixel_Transformer/Model_Pipelines/High_Res_Exp.py
 
-import os
-import math
 import numpy as np
 import torch
 import torch.nn.functional as F
 import torchmetrics
 import pytorch_lightning as pl
 from pytorch_lightning import loggers as pl_loggers
-from torchvision import transforms
 from skimage.segmentation import mark_boundaries
 from skimage.measure    import regionprops
 import matplotlib.pyplot as plt
@@ -17,10 +14,10 @@ from Models.SuperPixel_Transformer.PNP_CNNs.Camelyon_Resnet_18 import ResNet18
 from Models.SuperPixel_Transformer.PNP_CNNs.Resnet50       import ResNet50
 from Models.SuperPixel_Transformer.PNP_CNNs.MiniCNN       import SuperpixelCNN
 from Models.SuperPixel_Transformer.PNP_CNNs.customResnet  import CustomResNet20
-from Models.SuperPixel_Transformer.Transformer            import TransformerEncoder
+from Models.SuperPixel_Transformer.Transformer.Transformer import TransformerEncoder
 from Models.SuperPixel_Transformer.Model_Pipelines.Large_Scale_Imagery.Gerardt.High_Res_DataL import highres_loader
 from Models.SuperPixel_Transformer.Model_Pipelines.Large_Scale_Imagery.Gerardt.DebugCallback import DebugCallback
-from Models.SuperPixel_Transformer.config import (
+from Models.CONFIG.config import (
     num_epochs, learning_rate, cnn_option,
     use_checkpoint, g_dir, g_ann
 )

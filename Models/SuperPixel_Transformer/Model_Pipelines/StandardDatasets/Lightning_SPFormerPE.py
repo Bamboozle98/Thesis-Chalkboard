@@ -3,15 +3,14 @@ import torchmetrics
 import numpy as np
 import pytorch_lightning as pl
 from pytorch_lightning import loggers as pl_loggers
-from Models.SuperPixel_Transformer.config import num_epochs, learning_rate
+from Models.CONFIG.config import num_epochs, learning_rate
 from Models.SuperPixel_Transformer.PNP_CNNs.Resnet18 import ResNet18
 from Models.SuperPixel_Transformer.PNP_CNNs.Resnet50 import ResNet50
 from Models.SuperPixel_Transformer.PNP_CNNs.Resnet101 import ResNet101
-from Models.SuperPixel_Transformer.DataLoaders.Data_Loader import load_dataset
+from Models.SuperPixel_Transformer.DataLoaders.NaturalDataLoaders.Data_Loader import load_dataset
 from Models.SuperPixel_Transformer.PNP_CNNs.MiniCNN import SuperpixelCNN
-from Models.SuperPixel_Transformer.Transformer import TransformerEncoder
-from Models.SuperPixel_Transformer.config import dataset_option, cnn_option, use_checkpoint, num_superpixels
-from skimage.measure import regionprops
+from Models.SuperPixel_Transformer.Transformer.Transformer import TransformerEncoder
+from Models.CONFIG.config import dataset_option, cnn_option, use_checkpoint, num_superpixels
 
 # CUDA optimization
 torch.set_float32_matmul_precision('high')
@@ -173,7 +172,7 @@ if __name__ == "__main__":
 
     if dataset_option in ['oxford_pets', 'image_net', 'high_res']:
         train_loader, val_loader, class_names, n_classes = load_dataset(dataset_name=dataset_option)
-        logger = pl_loggers.TensorBoardLogger(save_dir="../../../my_logs")
+        logger = pl_loggers.TensorBoardLogger(save_dir="../../../Results/natural_logs")
     else:
         raise ValueError("Error with dataset loader selection.")
 
