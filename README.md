@@ -3,6 +3,8 @@ Planning and Development of Super-Pixel Transformer. Will be cleaned up, or offl
 completion. This repo will be the groundwork for multiple iterations and tests of different models. We will build our 
 models with SLIC and Segment Anything, and we will test pre-trained, and trained-from-scratch transformers. 
 
+https://developer.nvidia.com/cuda-12-4-0-download-archive?target_os=Windows&target_arch=x86_64&target_version=11&target_type=exe_local
+
 ## Major Goals:
 - [ ] Create a functioning SP Transformer Model
   - [x] Get a functioning transformer that classifies the Oxford Pets Dataset.
